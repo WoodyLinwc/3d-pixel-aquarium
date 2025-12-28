@@ -1,0 +1,100 @@
+Parrot Fish
+Tuna
+Cod
+Wolfish
+Sardine
+Mackerel
+Banded Butterflyfish
+Dab
+Bonefish
+Angelfish
+Clownfish
+Atlantic Bass
+Flounder
+Cobia
+Red Snapper
+Plaice
+Blue Tang
+Whiting
+Black Drum
+Salmon
+Silver Eel
+Pollock
+Halibut
+Blob Fish
+Anglerfish
+Sea Horse
+Ballan Wrasse
+Herring
+Pompano
+Lion Fish
+Weaver
+Stingray
+Cowfish
+Bream
+Pufferfish
+Shrimp
+Crab
+Octopus
+Jellyfish
+Sea Urchin
+Squid
+Lobster
+Pink Fantasia
+Sea Cucumber
+Blue Lobster
+Dumbo Octopus
+Sea Angel
+Sea Spider
+Christmas Tree Worm
+Saltwater Snail
+Turtle
+Sea Pen
+Crucian Carp
+Yellow Perch
+Bitterling
+Chub
+Dace
+Bluegill
+Char
+Black Bass
+Perch
+Loach
+Tilapia
+Guppy
+Eel
+Crappie
+Largemouth Bass
+Smelt
+King Salmon
+Catfish
+Trout
+Neon Tetra
+Walleye
+Betta
+Piranha
+Rainbow Trout
+Goldfish
+Fathead Minnow
+Goby
+Gizzard Shad
+Rosette
+Koi
+Green Sunfish
+Shubukin
+Golden Tench
+Grass Carp
+Plecostomus
+Fancy Goldfish
+Molly
+Red Shiner
+High Fin Banded Shark
+Pumpkin Seed Fish
+Paradise Fish
+Frog
+Tadpole
+Axolotl
+Water Beetle
+Crayfish
+Snake
+Freshwater Snail

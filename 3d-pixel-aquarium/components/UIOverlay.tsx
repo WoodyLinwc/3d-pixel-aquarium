@@ -21,141 +21,132 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
 }) => {
   return (
     <div className="absolute top-0 left-0 w-full p-6 flex flex-col md:flex-row justify-between items-start pointer-events-none select-none">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-4xl font-black text-white tracking-tighter drop-shadow-lg">
-          PIXEL TANK <span className="text-blue-400">3D</span>
+      <div className="flex flex-col gap-2">
+        <h1
+          className="text-4xl font-black text-white tracking-tight drop-shadow-[0_4px_0_rgba(0,0,0,0.5)] pixelated"
+          style={{ fontFamily: "monospace", imageRendering: "pixelated" }}
+        >
+          PIXEL TANK 3D
         </h1>
-        <p className="text-blue-200/60 font-medium text-sm">
-          RELAX • OBSERVE • ZEN
+        <p
+          className="text-cyan-300 font-bold text-xs tracking-widest"
+          style={{ fontFamily: "monospace" }}
+        >
+          ▸ RELAX ▸ OBSERVE ▸ ZEN
         </p>
       </div>
 
-      <div className="mt-4 md:mt-0 flex flex-col gap-3 pointer-events-auto">
+      <div className="mt-4 md:mt-0 flex flex-col gap-2 pointer-events-auto">
         {/* Fish Controls */}
-        <div className="flex items-center gap-4 bg-black/40 backdrop-blur-md border border-white/10 p-4 rounded-2xl">
-          <div className="flex flex-col items-center justify-center pr-4 border-r border-white/10">
-            <span className="text-xs font-bold text-blue-400 uppercase tracking-widest">
-              Fish
-            </span>
-            <span className="text-2xl font-mono text-white">{fishCount}</span>
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={onRemoveFish}
-              className="w-12 h-12 flex items-center justify-center bg-white/5 hover:bg-white/20 active:scale-95 border border-white/10 rounded-xl transition-all duration-200 group"
-              title="Remove Fish"
-            >
-              <svg
-                className="w-6 h-6 text-white group-hover:scale-110"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+        <div
+          className="bg-slate-800 border-4 border-slate-600 p-3"
+          style={{ boxShadow: "4px 4px 0 rgba(0,0,0,0.5)" }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-center justify-center pr-3 border-r-4 border-slate-600">
+              <span
+                className="text-[10px] font-black text-cyan-400 tracking-widest"
+                style={{ fontFamily: "monospace" }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={3}
-                  d="M20 12H4"
-                />
-              </svg>
-            </button>
-
-            <button
-              onClick={onAddFish}
-              className="w-12 h-12 flex items-center justify-center bg-blue-600 hover:bg-blue-500 active:scale-95 border border-blue-400/30 rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all duration-200 group"
-              title="Add Fish"
-            >
-              <svg
-                className="w-6 h-6 text-white group-hover:scale-110"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+                FISH
+              </span>
+              <span
+                className="text-3xl font-black text-white"
+                style={{ fontFamily: "monospace" }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={3}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-            </button>
+                {fishCount}
+              </span>
+            </div>
 
-            <button
-              onClick={onRefresh}
-              className="w-12 h-12 flex items-center justify-center bg-cyan-600 hover:bg-cyan-500 active:scale-95 border border-cyan-400/30 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all duration-200 group"
-              title="Refresh Fish"
-            >
-              <svg
-                className="w-6 h-6 text-white group-hover:rotate-180 transition-transform duration-300"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+            <div className="flex gap-2">
+              <button
+                onClick={onRemoveFish}
+                className="w-12 h-12 bg-slate-700 border-4 border-slate-500 hover:bg-slate-600 active:translate-y-1 transition-transform font-black text-2xl text-white"
+                style={{
+                  boxShadow: "0 4px 0 rgba(0,0,0,0.3)",
+                  fontFamily: "monospace",
+                }}
+                title="Remove Fish"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
-            </button>
+                −
+              </button>
+
+              <button
+                onClick={onAddFish}
+                className="w-12 h-12 bg-blue-600 border-4 border-blue-400 hover:bg-blue-500 active:translate-y-1 transition-transform font-black text-2xl text-white"
+                style={{
+                  boxShadow: "0 4px 0 rgba(0,0,0,0.3)",
+                  fontFamily: "monospace",
+                }}
+                title="Add Fish"
+              >
+                +
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Seaweed Controls */}
-        <div className="flex items-center gap-4 bg-black/40 backdrop-blur-md border border-white/10 p-4 rounded-2xl">
-          <div className="flex flex-col items-center justify-center pr-4 border-r border-white/10">
-            <span className="text-xs font-bold text-green-400 uppercase tracking-widest">
-              Seaweed
-            </span>
-            <span className="text-2xl font-mono text-white">
-              {seaweedCount}
-            </span>
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={onRemoveSeaweed}
-              className="w-12 h-12 flex items-center justify-center bg-white/5 hover:bg-white/20 active:scale-95 border border-white/10 rounded-xl transition-all duration-200 group"
-              title="Remove Seaweed"
-            >
-              <svg
-                className="w-6 h-6 text-white group-hover:scale-110"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+        <div
+          className="bg-slate-800 border-4 border-slate-600 p-3"
+          style={{ boxShadow: "4px 4px 0 rgba(0,0,0,0.5)" }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-center justify-center pr-3 border-r-4 border-slate-600">
+              <span
+                className="text-[10px] font-black text-green-400 tracking-widest"
+                style={{ fontFamily: "monospace" }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={3}
-                  d="M20 12H4"
-                />
-              </svg>
-            </button>
-
-            <button
-              onClick={onAddSeaweed}
-              className="w-12 h-12 flex items-center justify-center bg-green-600 hover:bg-green-500 active:scale-95 border border-green-400/30 rounded-xl shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all duration-200 group"
-              title="Add Seaweed"
-            >
-              <svg
-                className="w-6 h-6 text-white group-hover:scale-110"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+                WEED
+              </span>
+              <span
+                className="text-3xl font-black text-white"
+                style={{ fontFamily: "monospace" }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={3}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-            </button>
+                {seaweedCount}
+              </span>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={onRemoveSeaweed}
+                className="w-12 h-12 bg-slate-700 border-4 border-slate-500 hover:bg-slate-600 active:translate-y-1 transition-transform font-black text-2xl text-white"
+                style={{
+                  boxShadow: "0 4px 0 rgba(0,0,0,0.3)",
+                  fontFamily: "monospace",
+                }}
+                title="Remove Seaweed"
+              >
+                −
+              </button>
+
+              <button
+                onClick={onAddSeaweed}
+                className="w-12 h-12 bg-green-600 border-4 border-green-400 hover:bg-green-500 active:translate-y-1 transition-transform font-black text-2xl text-white"
+                style={{
+                  boxShadow: "0 4px 0 rgba(0,0,0,0.3)",
+                  fontFamily: "monospace",
+                }}
+                title="Add Seaweed"
+              >
+                +
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Refresh Button */}
+        <button
+          onClick={onRefresh}
+          className="w-full h-12 bg-cyan-600 border-4 border-cyan-400 hover:bg-cyan-500 active:translate-y-1 transition-transform font-black text-sm text-white tracking-widest"
+          style={{
+            boxShadow: "0 4px 0 rgba(0,0,0,0.3)",
+            fontFamily: "monospace",
+          }}
+          title="Refresh Tank"
+        >
+          ⟲ REFRESH
+        </button>
       </div>
     </div>
   );
