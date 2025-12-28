@@ -51,7 +51,7 @@ const App: React.FC = () => {
       <Canvas
         shadows
         camera={{
-          position: isMobile ? [0, 2, 30] : [0, 2, 8],
+          position: isMobile ? [0, 2, 50] : [0, 2, 8],
           fov: 45,
         }}
         gl={{ antialias: true, alpha: true }}
