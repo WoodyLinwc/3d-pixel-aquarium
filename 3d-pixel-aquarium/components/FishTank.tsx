@@ -60,21 +60,7 @@ export const FishTank: React.FC<FishTankProps> = ({ count }) => {
       </mesh>
 
       {/* Tank Frame - More detailed */}
-      <mesh position={[0, 0, 0]}>
-        <boxGeometry
-          args={[
-            TANK_SIZE.width + 0.12,
-            TANK_SIZE.height + 0.12,
-            TANK_SIZE.depth + 0.12,
-          ]}
-        />
-        <meshStandardMaterial
-          color="#1e293b"
-          wireframe
-          opacity={0.8}
-          transparent
-        />
-      </mesh>
+      {/* Removed wireframe to eliminate diagonal lines */}
 
       {/* Tank Floor (Sand) */}
       <mesh
