@@ -36,13 +36,20 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
           className="text-4xl font-black text-white tracking-tight drop-shadow-[0_4px_0_rgba(0,0,0,0.5)] pixelated"
           style={{ fontFamily: "monospace", imageRendering: "pixelated" }}
         >
-          PIXEL TANK 3D
+          Pixel Aquarium
         </h1>
+        <h2
+          className="text-4xl font-black text-white tracking-tight drop-shadow-[0_4px_0_rgba(0,0,0,0.5)] pixelated"
+          style={{ fontFamily: "monospace", imageRendering: "pixelated" }}
+        >
+          像素水族馆
+        </h2>
+
         <p
           className="text-cyan-300 font-bold text-xs tracking-widest"
           style={{ fontFamily: "monospace" }}
         >
-          ▸ RELAX ▸ OBSERVE ▸ ZEN
+          ▸ ADD ▸ OBSERVE ▸ RELAX
         </p>
         {isMobile && isPortrait && (
           <div
