@@ -14,7 +14,7 @@ const App: React.FC = () => {
   const [fishCount, setFishCount] = useState(6);
   const [seaweedCount, setSeaweedCount] = useState(3);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [environment, setEnvironment] = useState<EnvironmentType>("ocean");
+  const [environment, setEnvironment] = useState<EnvironmentType>("all");
 
   const handleRefresh = () => {
     setRefreshKey((prev) => prev + 1);
