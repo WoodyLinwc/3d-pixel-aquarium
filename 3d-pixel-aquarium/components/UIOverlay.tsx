@@ -42,6 +42,19 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
         >
           ▸ RELAX ▸ OBSERVE ▸ ZEN
         </p>
+        {isMobile && window.innerHeight > window.innerWidth && (
+          <div
+            className="mt-2 bg-yellow-500/20 border-2 border-yellow-500 px-3 py-2"
+            style={{ boxShadow: "2px 2px 0 rgba(0,0,0,0.3)" }}
+          >
+            <p
+              className="text-yellow-300 font-bold text-xs"
+              style={{ fontFamily: "monospace" }}
+            >
+              📱 Rotate device or use laptop for best experience
+            </p>
+          </div>
+        )}
       </div>
 
       {isMobile ? (

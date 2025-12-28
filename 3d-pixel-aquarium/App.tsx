@@ -110,39 +110,6 @@ const App: React.FC = () => {
         isMobile={isMobile}
       />
 
-      {/* Rotation Prompt for Vertical Mobile View */}
-      {isMobile && window.innerHeight > window.innerWidth && (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 pointer-events-none">
-          <div
-            className="bg-slate-800 border-4 border-slate-600 p-6 max-w-sm mx-4"
-            style={{ boxShadow: "8px 8px 0 rgba(0,0,0,0.5)" }}
-          >
-            <div className="flex flex-col items-center gap-4 text-center">
-              <div className="text-6xl">📱→🔄</div>
-              <h2
-                className="text-2xl font-black text-white tracking-tight"
-                style={{ fontFamily: "monospace" }}
-              >
-                ROTATE DEVICE
-              </h2>
-              <p
-                className="text-sm text-cyan-300 font-bold"
-                style={{ fontFamily: "monospace" }}
-              >
-                For the best experience, please rotate your device to landscape
-                mode or view on a laptop/desktop.
-              </p>
-              <div className="w-full h-1 bg-slate-600 mt-2">
-                <div
-                  className="h-full bg-cyan-400 animate-pulse"
-                  style={{ width: "100%" }}
-                ></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="absolute bottom-4 right-4 text-white/30 text-xs pointer-events-none">
         Drag to Orbit • Scroll to Zoom
       </div>
