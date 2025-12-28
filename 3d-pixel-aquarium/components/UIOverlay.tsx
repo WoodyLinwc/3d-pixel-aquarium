@@ -12,6 +12,7 @@ interface UIOverlayProps {
   environment: Environment;
   onEnvironmentChange: (env: Environment) => void;
   isMobile: boolean;
+  isPortrait: boolean;
 }
 
 export const UIOverlay: React.FC<UIOverlayProps> = ({
@@ -25,6 +26,7 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
   environment,
   onEnvironmentChange,
   isMobile,
+  isPortrait,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   return (
@@ -42,7 +44,7 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
         >
           ▸ RELAX ▸ OBSERVE ▸ ZEN
         </p>
-        {isMobile && window.innerHeight > window.innerWidth && (
+        {isMobile && isPortrait && (
           <div
             className="mt-2 bg-yellow-500/20 border-2 border-yellow-500 px-3 py-2"
             style={{ boxShadow: "2px 2px 0 rgba(0,0,0,0.3)" }}

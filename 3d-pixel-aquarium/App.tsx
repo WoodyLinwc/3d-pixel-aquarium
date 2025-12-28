@@ -15,6 +15,9 @@ const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 768 || window.innerHeight > window.innerWidth
   );
+  const [isPortrait, setIsPortrait] = useState(
+    window.innerHeight > window.innerWidth
+  );
 
   const [fishCount, setFishCount] = useState(isMobile ? 3 : 6);
   const [seaweedCount, setSeaweedCount] = useState(isMobile ? 2 : 3);
@@ -26,11 +29,17 @@ const App: React.FC = () => {
     const handleResize = () => {
       const mobile =
         window.innerWidth < 768 || window.innerHeight > window.innerWidth;
+      const portrait = window.innerHeight > window.innerWidth;
       setIsMobile(mobile);
+      setIsPortrait(portrait);
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
   }, []);
 
   const handleRefresh = () => {
@@ -108,6 +117,7 @@ const App: React.FC = () => {
         environment={environment}
         onEnvironmentChange={setEnvironment}
         isMobile={isMobile}
+        isPortrait={isPortrait}
       />
 
       <div className="absolute bottom-4 right-4 text-white/30 text-xs pointer-events-none">
