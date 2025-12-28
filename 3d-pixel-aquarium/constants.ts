@@ -1,0 +1,53 @@
+
+export const FISH_SPRITES = [
+  "https://raw.githubusercontent.com/stardew-valley-mods/StardewValley/master/Content/Tilesheets/fish.png", // Generic fallback if needed
+  "https://static.wikia.nocookie.net/stardewvalley/images/4/43/Pufferfish.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/1/11/Anchovy.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/7/73/Tuna.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/7/7b/Sardine.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/e/e1/Bream.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/d/db/Largemouth_Bass.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/a/a5/Smallmouth_Bass.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/c/c5/Rainbow_Trout.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/e/e0/Salmon.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/f/f1/Walleye.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/0/01/Perch.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/4/41/Carp.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/0/0b/Catfish.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/f/f7/Pike.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/5/5a/Sunfish.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/0/09/Red_Snapper.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/b/bd/Squid.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/4/40/Sea_Cucumber.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/9/90/Super_Cucumber.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/c/c5/Ghostfish.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/1/12/Stonefish.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/8/8b/Ice_Pip.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/d/df/Lava_Eel.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/d/df/Sandfish.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/3/3a/Scorpion_Carp.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/5/52/Sturgeon.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/3/36/Tiger_Trout.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/5/5b/Bullhead.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/f/fb/Tilapia.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/6/62/Chub.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/3/32/Dorado.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/0/05/Albacore.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/c/c9/Shad.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/6/6a/Lingcod.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/3/33/Halibut.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/8/81/Woodskip.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/1/1e/Void_Salmon.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/e/ef/Slimejack.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/2/23/Crimsonfish.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/d/d1/Angler.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/f/f3/Legend.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/4/42/Glacierfish.png",
+  "https://static.wikia.nocookie.net/stardewvalley/images/3/30/Mutant_Carp.png"
+];
+
+export const TANK_SIZE = {
+  width: 6,
+  height: 4,
+  depth: 4
+};
