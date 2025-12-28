@@ -11,6 +11,7 @@ import { UIOverlay } from "./components/UIOverlay";
 
 const App: React.FC = () => {
   const [fishCount, setFishCount] = useState(6);
+  const [seaweedCount, setSeaweedCount] = useState(3);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleRefresh = () => {
@@ -39,7 +40,11 @@ const App: React.FC = () => {
             shadow-mapSize-height={2048}
           />
 
-          <FishTank count={fishCount} key={refreshKey} />
+          <FishTank
+            count={fishCount}
+            seaweedCount={seaweedCount}
+            key={refreshKey}
+          />
 
           <Stars
             radius={100}
@@ -74,6 +79,9 @@ const App: React.FC = () => {
         onAddFish={() => setFishCount((prev) => Math.min(prev + 1, 30))}
         onRemoveFish={() => setFishCount((prev) => Math.max(prev - 1, 1))}
         onRefresh={handleRefresh}
+        seaweedCount={seaweedCount}
+        onAddSeaweed={() => setSeaweedCount((prev) => Math.min(prev + 1, 6))}
+        onRemoveSeaweed={() => setSeaweedCount((prev) => Math.max(prev - 1, 0))}
       />
 
       <div className="absolute bottom-4 right-4 text-white/30 text-xs pointer-events-none">

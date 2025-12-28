@@ -1,15 +1,16 @@
 import React, { useMemo, useRef } from "react";
 import * as THREE from "three";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useLoader } from "@react-three/fiber";
 import { MeshTransmissionMaterial } from "@react-three/drei";
 import { Fish } from "./Fish";
 import { FISH_SPRITES, TANK_SIZE } from "../constants";
 
 interface FishTankProps {
   count: number;
+  seaweedCount: number;
 }
 
-export const FishTank: React.FC<FishTankProps> = ({ count }) => {
+export const FishTank: React.FC<FishTankProps> = ({ count, seaweedCount }) => {
   // Generate random fish configurations
   const fishes = useMemo(() => {
     const safeMargin = 1.2; // Keep fish at least this far from walls
@@ -72,6 +73,9 @@ export const FishTank: React.FC<FishTankProps> = ({ count }) => {
         <meshStandardMaterial color="#fef08a" roughness={1} />
       </mesh>
 
+      {/* Seaweed decoration */}
+      <Seaweed count={seaweedCount} />
+
       {/* Bubbles / Particles */}
       <Bubbles count={40} />
 
@@ -82,6 +86,61 @@ export const FishTank: React.FC<FishTankProps> = ({ count }) => {
 
       {/* Table/Desk below the tank */}
       <Table />
+    </group>
+  );
+};
+
+// Seaweed decoration component
+const Seaweed: React.FC<{ count: number }> = ({ count }) => {
+  const [currentFrame, setCurrentFrame] = React.useState(0);
+  const textures = useMemo(() => {
+    return [1, 2, 3, 4].map((i) => {
+      const loader = new THREE.TextureLoader();
+      const texture = loader.load(`/decorations/seaweed_${i}.png`);
+      texture.magFilter = THREE.NearestFilter;
+      texture.minFilter = THREE.NearestFilter;
+      return texture;
+    });
+  }, []);
+
+  // Generate random seaweed positions and sizes
+  const seaweeds = useMemo(() => {
+    return Array.from({ length: 6 }).map((_, i) => ({
+      id: i,
+      position: [
+        (Math.random() - 0.5) * (TANK_SIZE.width - 1),
+        -TANK_SIZE.height / 2 + 1,
+        (Math.random() - 0.5) * (TANK_SIZE.depth - 1),
+      ] as [number, number, number],
+      scale: 1.5 + Math.random() * 2, // Random size between 1.5 and 3.5
+    }));
+  }, []);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentFrame((prev) => (prev + 1) % 4);
+    }, 300); // Change frame every 300ms for slower animation
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <group>
+      {seaweeds.slice(0, count).map((seaweed) => (
+        <mesh
+          key={seaweed.id}
+          position={seaweed.position}
+          scale={[seaweed.scale, seaweed.scale, 1]}
+        >
+          <planeGeometry args={[1, 1]} />
+          <meshStandardMaterial
+            map={textures[currentFrame]}
+            transparent
+            side={THREE.DoubleSide}
+            alphaTest={0.5}
+          />
+        </mesh>
+      ))}
     </group>
   );
 };
