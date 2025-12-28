@@ -1,100 +1,109 @@
-Parrot Fish
-Tuna
-Cod
-Wolfish
-Sardine
-Mackerel
-Banded Butterflyfish
-Dab
-Bonefish
-Angelfish
-Clownfish
-Atlantic Bass
-Flounder
-Cobia
-Red Snapper
-Plaice
-Blue Tang
-Whiting
-Black Drum
-Salmon
-Silver Eel
-Pollock
-Halibut
-Blob Fish
-Anglerfish
-Sea Horse
-Ballan Wrasse
-Herring
-Pompano
-Lion Fish
-Weaver
-Stingray
-Cowfish
-Bream
-Pufferfish
-Shrimp
-Crab
-Octopus
-Jellyfish
-Sea Urchin
-Squid
-Lobster
-Pink Fantasia
-Sea Cucumber
-Blue Lobster
-Dumbo Octopus
-Sea Angel
-Sea Spider
-Christmas Tree Worm
-Saltwater Snail
-Turtle
-Sea Pen
-Crucian Carp
-Yellow Perch
-Bitterling
-Chub
-Dace
-Bluegill
-Char
-Black Bass
-Perch
-Loach
-Tilapia
-Guppy
-Eel
-Crappie
-Largemouth Bass
-Smelt
-King Salmon
-Catfish
-Trout
-Neon Tetra
-Walleye
-Betta
-Piranha
-Rainbow Trout
-Goldfish
-Fathead Minnow
-Goby
-Gizzard Shad
-Rosette
-Koi
-Green Sunfish
-Shubukin
-Golden Tench
-Grass Carp
-Plecostomus
-Fancy Goldfish
-Molly
-Red Shiner
-High Fin Banded Shark
-Pumpkin Seed Fish
-Paradise Fish
-Frog
-Tadpole
-Axolotl
-Water Beetle
-Crayfish
-Snake
-Freshwater Snail
+## Pond Fish (17 species)
+1. Fancy Goldfish
+2. Fathead Minnow
+3. Gizzard Shad
+4. Goby
+5. Golden Tench
+6. Goldfish
+7. Grass Carp
+8. Green Sunfish
+9. High Fin Banded Shark
+10. Koi
+11. Molly
+12. Paradise Fish
+13. Plecostomus
+14. Pumpkin Seed Fish
+15. Red Shiner
+16. Rosette
+17. Shubukin
+
+## River Fish (24 species)
+1. Betta
+2. Bitterling
+3. Black Bass
+4. Bluegill
+5. Catfish
+6. Char
+7. Chub
+8. Crappie
+9. Crucian Carp
+10. Dace
+11. Eel
+12. Guppy
+13. King Salmon
+14. Largemouth Bass
+15. Loach
+16. Neon Tetra
+17. Perch
+18. Piranha
+19. Rainbow Trout
+20. Smelt
+21. Tilapia
+22. Trout
+23. Walleye
+24. Yellow Perch
+
+## Ocean Fish (35 species)
+1. Angelfish
+2. Anglerfish
+3. Atlantic Bass
+4. Ballan Wrasse
+5. Banded Butterflyfish
+6. Black Drum
+7. Blob Fish
+8. Blue Tang
+9. Bonefish
+10. Bream
+11. Clownfish
+12. Cobia
+13. Cod
+14. Cowfish
+15. Dab
+16. Flounder
+17. Halibut
+18. Herring
+19. Lion Fish
+20. Mackerel
+21. Parrot Fish
+22. Plaice
+23. Pollock
+24. Pompano
+25. Pufferfish
+26. Red Snapper
+27. Salmon
+28. Sardine
+29. Sea Horse
+30. Silver Eel
+31. Stingray
+32. Tuna
+33. Weaver
+34. Whiting
+35. Wolffish
+
+## Ocean Creatures (17 species)
+1. Blue Lobster
+2. Christmas Cucumber
+3. Crab
+4. Dumbo Octopus
+5. Jellyfish
+6. Lobster
+7. Octopus
+8. Pink Fantasia
+9. Saltwater Snail
+10. Sea Angel
+11. Sea Cucumber
+12. Sea Pen
+13. Sea Spider
+14. Sea Urchin
+15. Shrimp
+16. Squid
+17. Turtle
+
+## River/Pond Creatures (7 species)
+1. Axolotl
+2. Crayfish
+3. Freshwater Snail
+4. Frog
+5. Snake
+6. Tadpole
+7. Water Beetle
