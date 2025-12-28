@@ -1,4 +1,5 @@
 import React from "react";
+import type { Environment } from "../constants";
 
 interface UIOverlayProps {
   fishCount: number;
@@ -8,6 +9,8 @@ interface UIOverlayProps {
   seaweedCount: number;
   onAddSeaweed: () => void;
   onRemoveSeaweed: () => void;
+  environment: Environment;
+  onEnvironmentChange: (env: Environment) => void;
 }
 
 export const UIOverlay: React.FC<UIOverlayProps> = ({
@@ -18,6 +21,8 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
   seaweedCount,
   onAddSeaweed,
   onRemoveSeaweed,
+  environment,
+  onEnvironmentChange,
 }) => {
   return (
     <div className="absolute top-0 left-0 w-full p-6 flex flex-col md:flex-row justify-between items-start pointer-events-none select-none">
@@ -37,6 +42,79 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
       </div>
 
       <div className="mt-4 md:mt-0 flex flex-col gap-2 pointer-events-auto">
+        {/* Environment Selector */}
+        <div
+          className="bg-slate-800 border-4 border-slate-600 p-3"
+          style={{ boxShadow: "4px 4px 0 rgba(0,0,0,0.5)" }}
+        >
+          <div className="flex flex-col gap-2">
+            <span
+              className="text-[10px] font-black text-yellow-400 tracking-widest text-center"
+              style={{ fontFamily: "monospace" }}
+            >
+              ENVIRONMENT
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => onEnvironmentChange("ocean")}
+                className={`h-10 border-4 ${
+                  environment === "ocean"
+                    ? "bg-blue-600 border-blue-400"
+                    : "bg-slate-700 border-slate-500"
+                } hover:brightness-110 active:translate-y-1 transition-all font-black text-xs text-white`}
+                style={{
+                  boxShadow: "0 4px 0 rgba(0,0,0,0.3)",
+                  fontFamily: "monospace",
+                }}
+              >
+                OCEAN
+              </button>
+              <button
+                onClick={() => onEnvironmentChange("river")}
+                className={`h-10 border-4 ${
+                  environment === "river"
+                    ? "bg-teal-600 border-teal-400"
+                    : "bg-slate-700 border-slate-500"
+                } hover:brightness-110 active:translate-y-1 transition-all font-black text-xs text-white`}
+                style={{
+                  boxShadow: "0 4px 0 rgba(0,0,0,0.3)",
+                  fontFamily: "monospace",
+                }}
+              >
+                RIVER
+              </button>
+              <button
+                onClick={() => onEnvironmentChange("pond")}
+                className={`h-10 border-4 ${
+                  environment === "pond"
+                    ? "bg-emerald-600 border-emerald-400"
+                    : "bg-slate-700 border-slate-500"
+                } hover:brightness-110 active:translate-y-1 transition-all font-black text-xs text-white`}
+                style={{
+                  boxShadow: "0 4px 0 rgba(0,0,0,0.3)",
+                  fontFamily: "monospace",
+                }}
+              >
+                POND
+              </button>
+              <button
+                onClick={() => onEnvironmentChange("all")}
+                className={`h-10 border-4 ${
+                  environment === "all"
+                    ? "bg-purple-600 border-purple-400"
+                    : "bg-slate-700 border-slate-500"
+                } hover:brightness-110 active:translate-y-1 transition-all font-black text-xs text-white`}
+                style={{
+                  boxShadow: "0 4px 0 rgba(0,0,0,0.3)",
+                  fontFamily: "monospace",
+                }}
+              >
+                ALL
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Fish Controls */}
         <div
           className="bg-slate-800 border-4 border-slate-600 p-3"

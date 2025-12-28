@@ -8,11 +8,13 @@ import {
 } from "@react-three/drei";
 import { FishTank } from "./components/FishTank";
 import { UIOverlay } from "./components/UIOverlay";
+import type { Environment as EnvironmentType } from "./constants";
 
 const App: React.FC = () => {
   const [fishCount, setFishCount] = useState(6);
   const [seaweedCount, setSeaweedCount] = useState(3);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [environment, setEnvironment] = useState<EnvironmentType>("ocean");
 
   const handleRefresh = () => {
     setRefreshKey((prev) => prev + 1);
@@ -43,6 +45,7 @@ const App: React.FC = () => {
           <FishTank
             count={fishCount}
             seaweedCount={seaweedCount}
+            environment={environment}
             key={refreshKey}
           />
 
@@ -82,6 +85,8 @@ const App: React.FC = () => {
         seaweedCount={seaweedCount}
         onAddSeaweed={() => setSeaweedCount((prev) => Math.min(prev + 1, 6))}
         onRemoveSeaweed={() => setSeaweedCount((prev) => Math.max(prev - 1, 0))}
+        environment={environment}
+        onEnvironmentChange={setEnvironment}
       />
 
       <div className="absolute bottom-4 right-4 text-white/30 text-xs pointer-events-none">

@@ -3,20 +3,31 @@ import * as THREE from "three";
 import { useFrame, useLoader } from "@react-three/fiber";
 import { MeshTransmissionMaterial } from "@react-three/drei";
 import { Fish } from "./Fish";
-import { FISH_SPRITES, TANK_SIZE } from "../constants";
+import {
+  TANK_SIZE,
+  getFishForEnvironment,
+  type Environment,
+} from "../constants";
 
 interface FishTankProps {
   count: number;
   seaweedCount: number;
+  environment: Environment;
 }
 
-export const FishTank: React.FC<FishTankProps> = ({ count, seaweedCount }) => {
+export const FishTank: React.FC<FishTankProps> = ({
+  count,
+  seaweedCount,
+  environment,
+}) => {
   // Generate random fish configurations
   const fishes = useMemo(() => {
     const safeMargin = 1.2; // Keep fish at least this far from walls
+    const fishSprites = getFishForEnvironment(environment);
+
     return Array.from({ length: 30 }).map((_, i) => ({
       id: i,
-      sprite: FISH_SPRITES[Math.floor(Math.random() * FISH_SPRITES.length)],
+      sprite: fishSprites[Math.floor(Math.random() * fishSprites.length)],
       position: new THREE.Vector3(
         (Math.random() - 0.5) * (TANK_SIZE.width - safeMargin * 2),
         (Math.random() - 0.5) * (TANK_SIZE.height - safeMargin * 2),
@@ -27,7 +38,7 @@ export const FishTank: React.FC<FishTankProps> = ({ count, seaweedCount }) => {
       verticalFrequency: 0.5 + Math.random() * 2,
       verticalAmplitude: 0.05 + Math.random() * 0.1,
     }));
-  }, []);
+  }, [environment]);
 
   return (
     <group>
