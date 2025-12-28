@@ -105,15 +105,21 @@ const Seaweed: React.FC<{ count: number }> = ({ count }) => {
 
   // Generate random seaweed positions and sizes
   const seaweeds = useMemo(() => {
-    return Array.from({ length: 6 }).map((_, i) => ({
-      id: i,
-      position: [
-        (Math.random() - 0.5) * (TANK_SIZE.width - 1),
-        -TANK_SIZE.height / 2 + 1,
-        (Math.random() - 0.5) * (TANK_SIZE.depth - 1),
-      ] as [number, number, number],
-      scale: 1.5 + Math.random() * 2, // Random size between 1.5 and 3.5
-    }));
+    return Array.from({ length: 6 }).map((_, i) => {
+      const scale = 1.5 + Math.random() * 2; // Random size between 1.5 and 3.5
+      const baseY = -TANK_SIZE.height / 2;
+      const yOffset = 0.5 + (scale - 1.5) * 0.8; // Much larger shift for taller seaweed
+
+      return {
+        id: i,
+        position: [
+          (Math.random() - 0.5) * (TANK_SIZE.width - 1),
+          baseY + yOffset,
+          (Math.random() - 0.5) * (TANK_SIZE.depth - 1),
+        ] as [number, number, number],
+        scale: scale,
+      };
+    });
   }, []);
 
   React.useEffect(() => {
@@ -147,8 +153,8 @@ const Seaweed: React.FC<{ count: number }> = ({ count }) => {
 
 // Table/Desk Component
 const Table: React.FC = () => {
-  const tableY = -TANK_SIZE.height / 2 - 0.1; // Position right below tank
-  const tableHeight = 0.1;
+  const tableY = -TANK_SIZE.height / 2 - 0.15; // Position lower to account for thickness
+  const tableHeight = 0.2; // Increased thickness
   const tableWidth = TANK_SIZE.width + 1;
   const tableDepth = TANK_SIZE.depth + 0.5;
   const legHeight = 1.5;
