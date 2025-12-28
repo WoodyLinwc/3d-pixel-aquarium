@@ -11,10 +11,27 @@ import { UIOverlay } from "./components/UIOverlay";
 import type { Environment as EnvironmentType } from "./constants";
 
 const App: React.FC = () => {
-  const [fishCount, setFishCount] = useState(6);
-  const [seaweedCount, setSeaweedCount] = useState(3);
+  // Detect if mobile (portrait orientation or small screen)
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth < 768 || window.innerHeight > window.innerWidth
+  );
+
+  const [fishCount, setFishCount] = useState(isMobile ? 3 : 6);
+  const [seaweedCount, setSeaweedCount] = useState(isMobile ? 2 : 3);
   const [refreshKey, setRefreshKey] = useState(0);
   const [environment, setEnvironment] = useState<EnvironmentType>("all");
+
+  // Handle window resize
+  React.useEffect(() => {
+    const handleResize = () => {
+      const mobile =
+        window.innerWidth < 768 || window.innerHeight > window.innerWidth;
+      setIsMobile(mobile);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleRefresh = () => {
     setRefreshKey((prev) => prev + 1);
@@ -24,7 +41,10 @@ const App: React.FC = () => {
     <div className="relative w-full h-full bg-gradient-to-b from-blue-900 to-black">
       <Canvas
         shadows
-        camera={{ position: [0, 2, 8], fov: 45 }}
+        camera={{
+          position: isMobile ? [0, 2, 12] : [0, 2, 8],
+          fov: 45,
+        }}
         gl={{ antialias: true, alpha: true }}
       >
         <Suspense fallback={null}>
@@ -87,6 +107,7 @@ const App: React.FC = () => {
         onRemoveSeaweed={() => setSeaweedCount((prev) => Math.max(prev - 1, 0))}
         environment={environment}
         onEnvironmentChange={setEnvironment}
+        isMobile={isMobile}
       />
 
       <div className="absolute bottom-4 right-4 text-white/30 text-xs pointer-events-none">
