@@ -1,12 +1,21 @@
-
-import React, { Suspense, useState } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stars, Environment, ContactShadows } from '@react-three/drei';
-import { FishTank } from './components/FishTank';
-import { UIOverlay } from './components/UIOverlay';
+import React, { Suspense, useState } from "react";
+import { Canvas } from "@react-three/fiber";
+import {
+  OrbitControls,
+  Stars,
+  Environment,
+  ContactShadows,
+} from "@react-three/drei";
+import { FishTank } from "./components/FishTank";
+import { UIOverlay } from "./components/UIOverlay";
 
 const App: React.FC = () => {
-  const [fishCount, setFishCount] = useState(12);
+  const [fishCount, setFishCount] = useState(6);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleRefresh = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
 
   return (
     <div className="relative w-full h-full bg-gradient-to-b from-blue-900 to-black">
@@ -16,24 +25,42 @@ const App: React.FC = () => {
         gl={{ antialias: true, alpha: true }}
       >
         <Suspense fallback={null}>
-          <ambientLight intensity={0.4} />
-          <pointLight position={[10, 10, 10]} intensity={1.5} castShadow />
+          {/* Enhanced lighting for realistic glass reflections */}
+          <ambientLight intensity={0.5} />
+          <pointLight position={[10, 10, 10]} intensity={2} castShadow />
+          <pointLight position={[-10, 5, -10]} intensity={1} color="#a5f3fc" />
           <spotLight
             position={[0, 10, 0]}
-            angle={0.15}
+            angle={0.2}
             penumbra={1}
-            intensity={2}
+            intensity={2.5}
             castShadow
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
           />
-          
-          <FishTank count={fishCount} />
-          
-          <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-          <ContactShadows position={[0, -2.5, 0]} opacity={0.4} scale={20} blur={2} far={4.5} />
-          <Environment preset="city" />
-          
-          <OrbitControls 
-            minPolarAngle={Math.PI / 4} 
+
+          <FishTank count={fishCount} key={refreshKey} />
+
+          <Stars
+            radius={100}
+            depth={50}
+            count={5000}
+            factor={4}
+            saturation={0}
+            fade
+            speed={1}
+          />
+          <ContactShadows
+            position={[0, -2.5, 0]}
+            opacity={0.5}
+            scale={20}
+            blur={2.5}
+            far={4.5}
+          />
+          <Environment preset="dawn" background={false} />
+
+          <OrbitControls
+            minPolarAngle={Math.PI / 4}
             maxPolarAngle={Math.PI / 1.5}
             enablePan={false}
             minDistance={4}
@@ -42,12 +69,13 @@ const App: React.FC = () => {
         </Suspense>
       </Canvas>
 
-      <UIOverlay 
-        fishCount={fishCount} 
-        onAddFish={() => setFishCount(prev => Math.min(prev + 1, 30))} 
-        onRemoveFish={() => setFishCount(prev => Math.max(prev - 1, 1))}
+      <UIOverlay
+        fishCount={fishCount}
+        onAddFish={() => setFishCount((prev) => Math.min(prev + 1, 30))}
+        onRemoveFish={() => setFishCount((prev) => Math.max(prev - 1, 1))}
+        onRefresh={handleRefresh}
       />
-      
+
       <div className="absolute bottom-4 right-4 text-white/30 text-xs pointer-events-none">
         Drag to Orbit • Scroll to Zoom
       </div>
