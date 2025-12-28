@@ -79,6 +79,82 @@ export const FishTank: React.FC<FishTankProps> = ({ count }) => {
       {fishes.slice(0, count).map((fish) => (
         <Fish key={fish.id} {...fish} />
       ))}
+
+      {/* Table/Desk below the tank */}
+      <Table />
+    </group>
+  );
+};
+
+// Table/Desk Component
+const Table: React.FC = () => {
+  const tableY = -TANK_SIZE.height / 2 - 0.1; // Position right below tank
+  const tableHeight = 0.1;
+  const tableWidth = TANK_SIZE.width + 1;
+  const tableDepth = TANK_SIZE.depth + 0.5;
+  const legHeight = 1.5;
+  const legThickness = 0.15;
+
+  return (
+    <group>
+      {/* Table Top */}
+      <mesh position={[0, tableY, 0]} receiveShadow castShadow>
+        <boxGeometry args={[tableWidth, tableHeight, tableDepth]} />
+        <meshStandardMaterial color="#8b4513" roughness={0.7} metalness={0.1} />
+      </mesh>
+
+      {/* Table Legs */}
+      {/* Front Left Leg */}
+      <mesh
+        position={[
+          -tableWidth / 2 + 0.3,
+          tableY - legHeight / 2 - tableHeight / 2,
+          tableDepth / 2 - 0.3,
+        ]}
+        castShadow
+      >
+        <boxGeometry args={[legThickness, legHeight, legThickness]} />
+        <meshStandardMaterial color="#654321" roughness={0.8} />
+      </mesh>
+
+      {/* Front Right Leg */}
+      <mesh
+        position={[
+          tableWidth / 2 - 0.3,
+          tableY - legHeight / 2 - tableHeight / 2,
+          tableDepth / 2 - 0.3,
+        ]}
+        castShadow
+      >
+        <boxGeometry args={[legThickness, legHeight, legThickness]} />
+        <meshStandardMaterial color="#654321" roughness={0.8} />
+      </mesh>
+
+      {/* Back Left Leg */}
+      <mesh
+        position={[
+          -tableWidth / 2 + 0.3,
+          tableY - legHeight / 2 - tableHeight / 2,
+          -tableDepth / 2 + 0.3,
+        ]}
+        castShadow
+      >
+        <boxGeometry args={[legThickness, legHeight, legThickness]} />
+        <meshStandardMaterial color="#654321" roughness={0.8} />
+      </mesh>
+
+      {/* Back Right Leg */}
+      <mesh
+        position={[
+          tableWidth / 2 - 0.3,
+          tableY - legHeight / 2 - tableHeight / 2,
+          -tableDepth / 2 + 0.3,
+        ]}
+        castShadow
+      >
+        <boxGeometry args={[legThickness, legHeight, legThickness]} />
+        <meshStandardMaterial color="#654321" roughness={0.8} />
+      </mesh>
     </group>
   );
 };
