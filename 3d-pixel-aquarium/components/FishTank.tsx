@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { useFrame, useLoader } from "@react-three/fiber";
 import { MeshTransmissionMaterial } from "@react-three/drei";
 import { Fish } from "./Fish";
+import { TableText } from "./TableText";
 import {
   TANK_SIZE,
   getFishForEnvironment,
@@ -97,6 +98,9 @@ export const FishTank: React.FC<FishTankProps> = ({
 
       {/* Table/Desk below the tank */}
       <Table />
+
+      {/* Text below the table */}
+      <TableText />
     </group>
   );
 };
