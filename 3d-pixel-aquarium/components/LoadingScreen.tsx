@@ -78,7 +78,7 @@ export const LoadingScreen: React.FC = () => {
               style={{
                 fontFamily: "monospace",
                 textShadow: "3px 3px 0 rgba(0,0,0,0.5)",
-                letterSpacing: "0.3em",
+                letterSpacing: "0.5em",
               }}
             >
               像素水族馆

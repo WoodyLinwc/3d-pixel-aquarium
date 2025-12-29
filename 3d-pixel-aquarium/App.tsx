@@ -11,6 +11,7 @@ import { UIOverlay } from "./components/UIOverlay";
 import { FishIdentifier } from "./components/FishIdentifier";
 import { FishNotification } from "./components/FishNotification";
 import { LoadingScreen } from "./components/LoadingScreen";
+import { MusicPlayer } from "./components/MusicPlayer";
 import type { Environment as EnvironmentType } from "./constants";
 
 const App: React.FC = () => {
@@ -214,9 +215,7 @@ const App: React.FC = () => {
           notificationKey={notification.key}
         />
 
-        <div className="absolute bottom-4 right-4 text-white/30 text-xs pointer-events-none">
-          Drag to Orbit • Scroll to Zoom
-        </div>
+        <MusicPlayer />
       </div>
     </>
   );
