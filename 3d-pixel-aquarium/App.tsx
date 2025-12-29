@@ -10,6 +10,7 @@ import { FishTank } from "./components/FishTank";
 import { UIOverlay } from "./components/UIOverlay";
 import { FishIdentifier } from "./components/FishIdentifier";
 import { FishNotification } from "./components/FishNotification";
+import { LoadingScreen } from "./components/LoadingScreen";
 import type { Environment as EnvironmentType } from "./constants";
 
 const App: React.FC = () => {
@@ -20,6 +21,7 @@ const App: React.FC = () => {
   const [isPortrait, setIsPortrait] = useState(
     window.innerHeight > window.innerWidth
   );
+  const [isLoading, setIsLoading] = useState(true);
 
   const [fishCount, setFishCount] = useState(isMobile ? 3 : 6);
   const [seaweedCount, setSeaweedCount] = useState(isMobile ? 2 : 3);
@@ -51,6 +53,15 @@ const App: React.FC = () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("orientationchange", handleResize);
     };
+  }, []);
+
+  // Hide loading screen after initial load
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // Show loading screen for at least 2 seconds
+
+    return () => clearTimeout(timer);
   }, []);
 
   const handleRefresh = () => {
@@ -110,94 +121,104 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full h-full bg-gradient-to-b from-blue-900 to-black">
-      <Canvas
-        shadows
-        camera={{
-          position: isMobile ? [0, 2, 50] : [0, 2, 8],
-          fov: 45,
-        }}
-        gl={{ antialias: true, alpha: true }}
-      >
-        <Suspense fallback={null}>
-          {/* Enhanced lighting for realistic glass reflections */}
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} intensity={2} castShadow />
-          <pointLight position={[-10, 5, -10]} intensity={1} color="#a5f3fc" />
-          <spotLight
-            position={[0, 10, 0]}
-            angle={0.2}
-            penumbra={1}
-            intensity={2.5}
-            castShadow
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-          />
+    <>
+      {isLoading && <LoadingScreen />}
 
-          <FishTank
-            count={fishCount}
-            seaweedCount={seaweedCount}
-            environment={environment}
-            onFishUpdate={handleFishUpdate}
-            key={refreshKey}
-          />
+      <div className="relative w-full h-full bg-gradient-to-b from-blue-900 to-black">
+        <Canvas
+          shadows
+          camera={{
+            position: isMobile ? [0, 2, 50] : [0, 2, 8],
+            fov: 45,
+          }}
+          gl={{ antialias: true, alpha: true }}
+        >
+          <Suspense fallback={null}>
+            {/* Enhanced lighting for realistic glass reflections */}
+            <ambientLight intensity={0.5} />
+            <pointLight position={[10, 10, 10]} intensity={2} castShadow />
+            <pointLight
+              position={[-10, 5, -10]}
+              intensity={1}
+              color="#a5f3fc"
+            />
+            <spotLight
+              position={[0, 10, 0]}
+              angle={0.2}
+              penumbra={1}
+              intensity={2.5}
+              castShadow
+              shadow-mapSize-width={2048}
+              shadow-mapSize-height={2048}
+            />
 
-          <Stars
-            radius={100}
-            depth={50}
-            count={5000}
-            factor={4}
-            saturation={0}
-            fade
-            speed={1}
-          />
-          <ContactShadows
-            position={[0, -2.5, 0]}
-            opacity={0.5}
-            scale={20}
-            blur={2.5}
-            far={4.5}
-          />
-          <Environment preset="dawn" background={false} />
+            <FishTank
+              count={fishCount}
+              seaweedCount={seaweedCount}
+              environment={environment}
+              onFishUpdate={handleFishUpdate}
+              key={refreshKey}
+            />
 
-          <OrbitControls
-            minPolarAngle={Math.PI / 4}
-            maxPolarAngle={Math.PI / 1.5}
-            enablePan={false}
-            minDistance={4}
-            maxDistance={15}
-          />
-        </Suspense>
-      </Canvas>
+            <Stars
+              radius={100}
+              depth={50}
+              count={5000}
+              factor={4}
+              saturation={0}
+              fade
+              speed={1}
+            />
+            <ContactShadows
+              position={[0, -2.5, 0]}
+              opacity={0.5}
+              scale={20}
+              blur={2.5}
+              far={4.5}
+            />
+            <Environment preset="dawn" background={false} />
 
-      <UIOverlay
-        fishCount={fishCount}
-        onAddFish={() => setFishCount((prev) => Math.min(prev + 1, 30))}
-        onRemoveFish={() => setFishCount((prev) => Math.max(prev - 1, 1))}
-        onRefresh={handleRefresh}
-        seaweedCount={seaweedCount}
-        onAddSeaweed={() => setSeaweedCount((prev) => Math.min(prev + 1, 6))}
-        onRemoveSeaweed={() => setSeaweedCount((prev) => Math.max(prev - 1, 0))}
-        environment={environment}
-        onEnvironmentChange={setEnvironment}
-        isMobile={isMobile}
-        isPortrait={isPortrait}
-      />
+            <OrbitControls
+              minPolarAngle={Math.PI / 4}
+              maxPolarAngle={Math.PI / 1.5}
+              enablePan={false}
+              minDistance={4}
+              maxDistance={15}
+            />
+          </Suspense>
+        </Canvas>
 
-      <FishIdentifier fishList={currentFishList} isMobile={isMobile} />
+        <UIOverlay
+          fishCount={fishCount}
+          onAddFish={() => setFishCount((prev) => Math.min(prev + 1, 30))}
+          onRemoveFish={() => setFishCount((prev) => Math.max(prev - 1, 1))}
+          onRefresh={handleRefresh}
+          seaweedCount={seaweedCount}
+          onAddSeaweed={() => setSeaweedCount((prev) => Math.min(prev + 1, 6))}
+          onRemoveSeaweed={() =>
+            setSeaweedCount((prev) => Math.max(prev - 1, 0))
+          }
+          environment={environment}
+          onEnvironmentChange={setEnvironment}
+          isMobile={isMobile}
+          isPortrait={isPortrait}
+        />
 
-      <FishNotification
-        message={notification.message}
-        fishName={notification.fishName}
-        fishImage={notification.fishImage}
-        type={notification.type}
-        notificationKey={notification.key}
-      />
+        <FishIdentifier fishList={currentFishList} isMobile={isMobile} />
 
-      <div className="absolute bottom-4 right-4 text-white/30 text-xs pointer-events-none">
-        Drag to Orbit • Scroll to Zoom
+        <FishNotification
+          message={notification.message}
+          fishName={notification.fishName}
+          fishImage={notification.fishImage}
+          type={notification.type}
+          notificationKey={notification.key}
+        />
+
+        <div className="absolute bottom-4 right-4 text-white/30 text-xs pointer-events-none">
+          Drag to Orbit • Scroll to Zoom
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
