@@ -174,6 +174,7 @@ const App: React.FC = () => {
         useCustomFish,
       };
       localStorage.setItem(AQUARIUM_STORAGE_KEY, JSON.stringify(state));
+      console.log("Saved aquarium:", state);
 
       setNotification({
         message: "Aquarium Saved!",
@@ -197,13 +198,18 @@ const App: React.FC = () => {
       setSuppressNotifications(true);
 
       const savedData = localStorage.getItem(AQUARIUM_STORAGE_KEY);
+      console.log("Loading aquarium, savedData:", savedData);
+
       if (savedData) {
         const state: SavedAquariumState = JSON.parse(savedData);
+        console.log("Loaded aquarium:", state);
 
         setFishCount(state.fishCount);
         setSeaweedCount(state.seaweedCount);
         setEnvironment(state.environment);
         setUseCustomFish(state.useCustomFish);
+        setCurrentFishList(state.currentFishList || []);
+        setPreviousFishList(state.currentFishList || []);
         setRefreshKey((prev) => prev + 1);
 
         setNotification({
@@ -212,9 +218,12 @@ const App: React.FC = () => {
           key: Date.now(),
         });
       } else {
+        console.log("No saved data found, creating empty tank");
         // No saved aquarium, start with empty tank
         setFishCount(0);
         setSeaweedCount(0);
+        setCurrentFishList([]);
+        setPreviousFishList([]);
         setRefreshKey((prev) => prev + 1);
 
         setNotification({
@@ -256,6 +265,8 @@ const App: React.FC = () => {
     setSeaweedCount(isMobile ? 2 : 3);
     setEnvironment("all");
     setUseCustomFish(false);
+    setCurrentFishList([]);
+    setPreviousFishList([]);
     setRefreshKey((prev) => prev + 1);
 
     setNotification({
@@ -308,6 +319,7 @@ const App: React.FC = () => {
               environment={environment}
               onFishUpdate={handleFishUpdate}
               useCustomFish={useCustomFish}
+              savedFishList={isMyAquarium ? currentFishList : undefined}
               key={refreshKey}
             />
 

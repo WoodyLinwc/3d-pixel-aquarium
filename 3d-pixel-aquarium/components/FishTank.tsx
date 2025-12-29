@@ -16,6 +16,7 @@ interface FishTankProps {
   environment: Environment;
   onFishUpdate?: (fishSprites: string[]) => void;
   useCustomFish?: boolean;
+  savedFishList?: string[];
 }
 
 export const FishTank: React.FC<FishTankProps> = ({
@@ -24,28 +25,64 @@ export const FishTank: React.FC<FishTankProps> = ({
   environment,
   onFishUpdate,
   useCustomFish = false,
+  savedFishList,
 }) => {
   // Generate random fish configurations
   const fishes = useMemo(() => {
     const safeMargin = 1.2; // Keep fish at least this far from walls
     const fishSprites = getFishForEnvironment(environment, useCustomFish);
 
-    const generatedFishes = Array.from({ length: 30 }).map((_, i) => ({
-      id: i,
-      sprite: fishSprites[Math.floor(Math.random() * fishSprites.length)],
-      position: new THREE.Vector3(
-        (Math.random() - 0.5) * (TANK_SIZE.width - safeMargin * 2),
-        (Math.random() - 0.5) * (TANK_SIZE.height - safeMargin * 2),
-        (Math.random() - 0.5) * (TANK_SIZE.depth - safeMargin * 2)
-      ),
-      speed: 0.01 + Math.random() * 0.03,
-      scale: 0.3 + Math.random() * 0.4,
-      verticalFrequency: 0.5 + Math.random() * 2,
-      verticalAmplitude: 0.05 + Math.random() * 0.1,
-    }));
+    // Simple hash function to get consistent random values for each fish sprite
+    const hashString = (str: string): number => {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      return Math.abs(hash);
+    };
+
+    // Seeded random function
+    const seededRandom = (seed: number): number => {
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    };
+
+    // If we have a saved fish list, use it to maintain the exact fish
+    const generatedFishes = Array.from({ length: 30 }).map((_, i) => {
+      // Use saved fish if available and within range, otherwise random
+      let sprite: string;
+      if (savedFishList && i < savedFishList.length) {
+        sprite = savedFishList[i];
+      } else {
+        sprite = fishSprites[Math.floor(Math.random() * fishSprites.length)];
+      }
+
+      // Generate consistent speeds based on fish sprite
+      const spriteHash = hashString(sprite);
+      const speedSeed = seededRandom(spriteHash + 1);
+      const scaleSeed = seededRandom(spriteHash + 2);
+      const vFreqSeed = seededRandom(spriteHash + 3);
+      const vAmpSeed = seededRandom(spriteHash + 4);
+
+      return {
+        id: i,
+        sprite,
+        position: new THREE.Vector3(
+          (Math.random() - 0.5) * (TANK_SIZE.width - safeMargin * 2),
+          (Math.random() - 0.5) * (TANK_SIZE.height - safeMargin * 2),
+          (Math.random() - 0.5) * (TANK_SIZE.depth - safeMargin * 2)
+        ),
+        speed: 0.005 + speedSeed * 0.015, // Reduced speed: 0.005 to 0.020 (was 0.01 to 0.04)
+        scale: 0.3 + scaleSeed * 0.4, // Consistent scale for this fish species
+        verticalFrequency: 0.5 + vFreqSeed * 2,
+        verticalAmplitude: 0.05 + vAmpSeed * 0.1,
+      };
+    });
 
     return generatedFishes;
-  }, [environment, useCustomFish]);
+  }, [environment, useCustomFish, savedFishList]);
 
   // Report the actual fish sprites being displayed
   React.useEffect(() => {
