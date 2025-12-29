@@ -16,6 +16,9 @@ interface UIOverlayProps {
   isPortrait: boolean;
   useCustomFish: boolean;
   onEasterEgg: () => void;
+  onMyAquarium: () => void;
+  onExitMyAquarium: () => void;
+  isMyAquarium: boolean;
 }
 
 export const UIOverlay: React.FC<UIOverlayProps> = ({
@@ -32,6 +35,9 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
   isPortrait,
   useCustomFish,
   onEasterEgg,
+  onMyAquarium,
+  onExitMyAquarium,
+  isMyAquarium,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   return (
@@ -276,16 +282,35 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
                   </span>
                 </button>
                 <button
-                  className="flex-1 h-12 border-4 bg-slate-800 border-slate-600 hover:bg-slate-700 hover:border-cyan-400 active:translate-y-1 transition-all font-black text-xs text-white tracking-widest"
+                  onClick={onMyAquarium}
+                  className={`flex-1 h-12 border-4 hover:bg-slate-700 hover:border-cyan-400 active:translate-y-1 transition-all font-black text-xs text-white tracking-widest ${
+                    isMyAquarium
+                      ? "bg-cyan-700 border-cyan-500"
+                      : "bg-slate-800 border-slate-600"
+                  }`}
                   style={{
                     boxShadow: "4px 4px 0 rgba(0,0,0,0.5)",
                     fontFamily: "monospace",
                   }}
-                  title="My Aquarium (Coming Soon)"
+                  title={isMyAquarium ? "Save Changes" : "Load My Aquarium"}
                 >
-                  MY AQUARIUM
+                  {isMyAquarium ? "💾 SAVE" : "🐠 MY TANK"}
                 </button>
               </div>
+
+              {/* Exit My Aquarium Button (only shown when in My Aquarium mode) */}
+              {isMyAquarium && (
+                <button
+                  onClick={onExitMyAquarium}
+                  className="w-full h-10 bg-orange-600 border-4 border-orange-400 hover:bg-orange-500 active:translate-y-1 transition-transform font-black text-xs text-white tracking-widest"
+                  style={{
+                    boxShadow: "0 4px 0 rgba(0,0,0,0.3)",
+                    fontFamily: "monospace",
+                  }}
+                >
+                  ← EXIT MY TANK
+                </button>
+              )}
 
               {/* Refresh Button */}
               <button
@@ -497,16 +522,40 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
               <span className="text-2xl">{useCustomFish ? "✨" : "🥚"}</span>
             </button>
             <button
-              className="flex-1 h-12 border-4 bg-slate-800 border-slate-600 hover:bg-slate-700 hover:border-cyan-400 active:translate-y-1 transition-all font-black text-xs text-white tracking-widest"
+              onClick={onMyAquarium}
+              className={`flex-1 h-12 border-4 hover:bg-slate-700 hover:border-cyan-400 active:translate-y-1 transition-all font-black text-xs text-white tracking-widest ${
+                isMyAquarium
+                  ? "bg-cyan-700 border-cyan-500"
+                  : "bg-slate-800 border-slate-600"
+              }`}
               style={{
                 boxShadow: "4px 4px 0 rgba(0,0,0,0.5)",
                 fontFamily: "monospace",
               }}
-              title="My Aquarium (Coming Soon)"
+              title={
+                isMyAquarium
+                  ? "Save Changes to My Aquarium"
+                  : "Load My Aquarium"
+              }
             >
-              MY AQUARIUM
+              {isMyAquarium ? "💾 SAVE" : "🐠 MY AQUARIUM"}
             </button>
           </div>
+
+          {/* Exit My Aquarium Button (only shown when in My Aquarium mode) */}
+          {isMyAquarium && (
+            <button
+              onClick={onExitMyAquarium}
+              className="w-full h-12 bg-orange-600 border-4 border-orange-400 hover:bg-orange-500 active:translate-y-1 transition-transform font-black text-sm text-white tracking-widest"
+              style={{
+                boxShadow: "0 4px 0 rgba(0,0,0,0.3)",
+                fontFamily: "monospace",
+              }}
+              title="Exit My Aquarium and return to original tank"
+            >
+              ← EXIT MY AQUARIUM
+            </button>
+          )}
 
           {/* Refresh Button */}
           <button

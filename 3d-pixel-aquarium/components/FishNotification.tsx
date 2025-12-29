@@ -4,7 +4,7 @@ interface FishNotificationProps {
   message: string | null;
   fishName?: string;
   fishImage?: string;
-  type: "added" | "removed" | "custom" | null;
+  type: "added" | "removed" | "custom" | "saved" | "loaded" | null;
   notificationKey?: number;
 }
 
@@ -39,6 +39,10 @@ export const FishNotification: React.FC<FishNotificationProps> = ({
         return "bg-red-900/95 border-red-500 text-red-300";
       case "custom":
         return "bg-pink-900/95 border-pink-500 text-pink-300";
+      case "saved":
+        return "bg-blue-900/95 border-blue-500 text-blue-300";
+      case "loaded":
+        return "bg-purple-900/95 border-purple-500 text-purple-300";
       default:
         return "bg-slate-900/95 border-slate-500 text-slate-300";
     }
@@ -52,6 +56,10 @@ export const FishNotification: React.FC<FishNotificationProps> = ({
         return "❌ FISH REMOVED";
       case "custom":
         return "✨ BEAUTIFUL DRAWING MODE";
+      case "saved":
+        return "💾 AQUARIUM SAVED";
+      case "loaded":
+        return "🐠 AQUARIUM LOADED";
       default:
         return "🐟";
     }
@@ -93,6 +101,14 @@ export const FishNotification: React.FC<FishNotificationProps> = ({
               style={{ fontFamily: "monospace" }}
             >
               {fishName}
+            </span>
+          )}
+          {(type === "saved" || type === "loaded") && message && !fishName && (
+            <span
+              className="text-white text-sm font-bold mt-1"
+              style={{ fontFamily: "monospace" }}
+            >
+              {message}
             </span>
           )}
         </div>

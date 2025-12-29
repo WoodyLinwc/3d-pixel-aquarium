@@ -15,6 +15,18 @@ import { MusicPlayer } from "./components/MusicPlayer";
 import { EasterEggButton } from "./components/EasterEggButton";
 import type { Environment as EnvironmentType } from "./constants";
 
+// LocalStorage key
+const AQUARIUM_STORAGE_KEY = "myPixelAquarium";
+
+// Type for saved aquarium state
+interface SavedAquariumState {
+  fishCount: number;
+  seaweedCount: number;
+  environment: EnvironmentType;
+  currentFishList: string[];
+  useCustomFish: boolean;
+}
+
 const App: React.FC = () => {
   // Detect if mobile (portrait orientation or small screen)
   const [isMobile, setIsMobile] = useState(
@@ -32,11 +44,13 @@ const App: React.FC = () => {
   const [currentFishList, setCurrentFishList] = useState<string[]>([]);
   const [previousFishList, setPreviousFishList] = useState<string[]>([]);
   const [useCustomFish, setUseCustomFish] = useState(false);
+  const [isMyAquarium, setIsMyAquarium] = useState(false);
+  const [suppressNotifications, setSuppressNotifications] = useState(false);
   const [notification, setNotification] = useState<{
     message: string | null;
     fishName?: string;
     fishImage?: string;
-    type: "added" | "removed" | "custom" | null;
+    type: "added" | "removed" | "custom" | "saved" | "loaded" | null;
     key?: number;
   }>({ message: null, type: null });
 
@@ -90,6 +104,20 @@ const App: React.FC = () => {
     const previousCount = previousFishList.length;
     const currentCount = fishSprites.length;
 
+    // Always update the lists
+    setPreviousFishList(fishSprites);
+    setCurrentFishList(fishSprites);
+
+    // Skip all notifications if suppressed (during mode transitions)
+    if (suppressNotifications) {
+      return;
+    }
+
+    // Skip notifications if both lists are empty
+    if (previousCount === 0 && currentCount === 0) {
+      return;
+    }
+
     // Fish was added
     if (currentCount > previousCount && previousCount > 0) {
       const addedFish = fishSprites.filter(
@@ -109,11 +137,11 @@ const App: React.FC = () => {
         fishName,
         fishImage: fishPath,
         type: "added",
-        key: Date.now(), // Unique key to force re-render
+        key: Date.now(),
       });
     }
     // Fish was removed
-    else if (currentCount < previousCount) {
+    else if (currentCount < previousCount && previousCount > 0) {
       const removedFish = previousFishList.filter(
         (fish) => !fishSprites.includes(fish)
       );
@@ -130,12 +158,116 @@ const App: React.FC = () => {
         fishName,
         fishImage: fishPath,
         type: "removed",
-        key: Date.now(), // Unique key to force re-render
+        key: Date.now(),
       });
     }
+  };
 
-    setPreviousFishList(fishSprites);
-    setCurrentFishList(fishSprites);
+  // Save current aquarium state to localStorage
+  const saveMyAquarium = () => {
+    try {
+      const state: SavedAquariumState = {
+        fishCount,
+        seaweedCount,
+        environment,
+        currentFishList,
+        useCustomFish,
+      };
+      localStorage.setItem(AQUARIUM_STORAGE_KEY, JSON.stringify(state));
+
+      setNotification({
+        message: "Aquarium Saved!",
+        type: "saved",
+        key: Date.now(),
+      });
+    } catch (error) {
+      console.error("Failed to save aquarium:", error);
+      setNotification({
+        message: "Failed to save aquarium",
+        type: "removed",
+        key: Date.now(),
+      });
+    }
+  };
+
+  // Load saved aquarium state from localStorage
+  const loadMyAquarium = () => {
+    try {
+      // Suppress fish add/remove notifications during mode transition
+      setSuppressNotifications(true);
+
+      const savedData = localStorage.getItem(AQUARIUM_STORAGE_KEY);
+      if (savedData) {
+        const state: SavedAquariumState = JSON.parse(savedData);
+
+        setFishCount(state.fishCount);
+        setSeaweedCount(state.seaweedCount);
+        setEnvironment(state.environment);
+        setUseCustomFish(state.useCustomFish);
+        setRefreshKey((prev) => prev + 1);
+
+        setNotification({
+          message: "Your Aquarium Loaded!",
+          type: "loaded",
+          key: Date.now(),
+        });
+      } else {
+        // No saved aquarium, start with empty tank
+        setFishCount(0);
+        setSeaweedCount(0);
+        setRefreshKey((prev) => prev + 1);
+
+        setNotification({
+          message: "Empty Tank Created!",
+          type: "loaded",
+          key: Date.now(),
+        });
+      }
+      setIsMyAquarium(true);
+
+      // Re-enable notifications after a short delay
+      setTimeout(() => {
+        setSuppressNotifications(false);
+      }, 500);
+    } catch (error) {
+      console.error("Failed to load aquarium:", error);
+      setSuppressNotifications(false);
+    }
+  };
+
+  // Toggle My Aquarium - save current state or load saved state
+  const handleMyAquarium = () => {
+    if (isMyAquarium) {
+      // Already viewing "My Aquarium", save any changes
+      saveMyAquarium();
+    } else {
+      // Load saved aquarium or create empty tank
+      loadMyAquarium();
+    }
+  };
+
+  // Exit My Aquarium mode and return to original tank
+  const handleExitMyAquarium = () => {
+    // Suppress fish add/remove notifications during mode transition
+    setSuppressNotifications(true);
+
+    setIsMyAquarium(false);
+    setFishCount(isMobile ? 3 : 6);
+    setSeaweedCount(isMobile ? 2 : 3);
+    setEnvironment("all");
+    setUseCustomFish(false);
+    setRefreshKey((prev) => prev + 1);
+
+    setNotification({
+      message: "Returned to Original Tank",
+      type: "loaded",
+      key: Date.now(),
+    });
+
+    // Re-enable notifications after a short delay
+    setTimeout(() => {
+      setSuppressNotifications(false);
+    }, 500);
   };
 
   return (
@@ -210,7 +342,7 @@ const App: React.FC = () => {
         <UIOverlay
           fishCount={fishCount}
           onAddFish={() => setFishCount((prev) => Math.min(prev + 1, 30))}
-          onRemoveFish={() => setFishCount((prev) => Math.max(prev - 1, 1))}
+          onRemoveFish={() => setFishCount((prev) => Math.max(prev - 1, 0))}
           onRefresh={handleRefresh}
           seaweedCount={seaweedCount}
           onAddSeaweed={() => setSeaweedCount((prev) => Math.min(prev + 1, 6))}
@@ -223,9 +355,36 @@ const App: React.FC = () => {
           isPortrait={isPortrait}
           useCustomFish={useCustomFish}
           onEasterEgg={handleEasterEgg}
+          onMyAquarium={handleMyAquarium}
+          onExitMyAquarium={handleExitMyAquarium}
+          isMyAquarium={isMyAquarium}
         />
 
         <FishIdentifier fishList={currentFishList} isMobile={isMobile} />
+
+        {/* Empty Tank Message */}
+        {fishCount === 0 && (
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-40">
+            <div
+              className="bg-slate-900/95 border-4 border-cyan-500 p-6 text-center"
+              style={{ boxShadow: "8px 8px 0 rgba(0,0,0,0.8)" }}
+            >
+              <div className="text-6xl mb-4">🐠</div>
+              <h3
+                className="text-cyan-400 font-black text-2xl tracking-widest mb-2"
+                style={{ fontFamily: "monospace" }}
+              >
+                EMPTY TANK
+              </h3>
+              <p
+                className="text-white font-bold text-sm tracking-wide"
+                style={{ fontFamily: "monospace" }}
+              >
+                Click + to add fish!
+              </p>
+            </div>
+          </div>
+        )}
 
         <FishNotification
           message={notification.message}
