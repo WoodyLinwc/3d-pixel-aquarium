@@ -166,7 +166,11 @@ export const FishIdentifier: React.FC<FishIdentifierProps> = ({
       window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank");
     } else {
       // Normal behavior: Google Image search
-      const searchQuery = encodeURIComponent(fish.name + " fish");
+      // For creatures that aren't fish, don't add " fish" suffix
+      const isCreature = fish.category.includes("Creatures");
+      const searchQuery = isCreature
+        ? encodeURIComponent(fish.name)
+        : encodeURIComponent(fish.name + " fish");
       window.open(
         `https://www.google.com/search?tbm=isch&q=${searchQuery}`,
         "_blank"
