@@ -9,6 +9,7 @@ import {
 import { FishTank } from "./components/FishTank";
 import { UIOverlay } from "./components/UIOverlay";
 import { FishIdentifier } from "./components/FishIdentifier";
+import { FishNotification } from "./components/FishNotification";
 import type { Environment as EnvironmentType } from "./constants";
 
 const App: React.FC = () => {
@@ -25,6 +26,14 @@ const App: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [environment, setEnvironment] = useState<EnvironmentType>("all");
   const [currentFishList, setCurrentFishList] = useState<string[]>([]);
+  const [previousFishList, setPreviousFishList] = useState<string[]>([]);
+  const [notification, setNotification] = useState<{
+    message: string | null;
+    fishName?: string;
+    fishImage?: string;
+    type: "added" | "removed" | null;
+    key?: number;
+  }>({ message: null, type: null });
 
   // Handle window resize
   React.useEffect(() => {
@@ -49,6 +58,54 @@ const App: React.FC = () => {
   };
 
   const handleFishUpdate = (fishSprites: string[]) => {
+    const previousCount = previousFishList.length;
+    const currentCount = fishSprites.length;
+
+    // Fish was added
+    if (currentCount > previousCount && previousCount > 0) {
+      const addedFish = fishSprites.filter(
+        (fish, index) =>
+          !previousFishList.includes(fish) || index >= previousCount
+      );
+      const fishPath =
+        addedFish.length > 0
+          ? addedFish[0]
+          : fishSprites[fishSprites.length - 1];
+      const fishName =
+        fishPath.split("/").pop()?.replace(".png", "").replace(/_/g, " ") ||
+        "Unknown Fish";
+
+      setNotification({
+        message: "Fish Added",
+        fishName,
+        fishImage: fishPath,
+        type: "added",
+        key: Date.now(), // Unique key to force re-render
+      });
+    }
+    // Fish was removed
+    else if (currentCount < previousCount) {
+      const removedFish = previousFishList.filter(
+        (fish) => !fishSprites.includes(fish)
+      );
+      const fishPath =
+        removedFish.length > 0
+          ? removedFish[0]
+          : previousFishList[previousFishList.length - 1];
+      const fishName =
+        fishPath.split("/").pop()?.replace(".png", "").replace(/_/g, " ") ||
+        "Unknown Fish";
+
+      setNotification({
+        message: "Fish Removed",
+        fishName,
+        fishImage: fishPath,
+        type: "removed",
+        key: Date.now(), // Unique key to force re-render
+      });
+    }
+
+    setPreviousFishList(fishSprites);
     setCurrentFishList(fishSprites);
   };
 
@@ -128,6 +185,14 @@ const App: React.FC = () => {
       />
 
       <FishIdentifier fishList={currentFishList} isMobile={isMobile} />
+
+      <FishNotification
+        message={notification.message}
+        fishName={notification.fishName}
+        fishImage={notification.fishImage}
+        type={notification.type}
+        notificationKey={notification.key}
+      />
 
       <div className="absolute bottom-4 right-4 text-white/30 text-xs pointer-events-none">
         Drag to Orbit • Scroll to Zoom
