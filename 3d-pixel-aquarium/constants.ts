@@ -92,7 +92,7 @@ export const OCEAN_FISH = [
 
 export const OCEAN_CREATURES = [
   "Blue_Lobster",
-  "Chrismas_Cucumber",
+  "Chrismas_Tree_Worm",
   "Crab",
   "Dumbo_Octopus",
   "Jellyfish",

@@ -14,19 +14,21 @@ interface FishTankProps {
   count: number;
   seaweedCount: number;
   environment: Environment;
+  onFishUpdate?: (fishSprites: string[]) => void;
 }
 
 export const FishTank: React.FC<FishTankProps> = ({
   count,
   seaweedCount,
   environment,
+  onFishUpdate,
 }) => {
   // Generate random fish configurations
   const fishes = useMemo(() => {
     const safeMargin = 1.2; // Keep fish at least this far from walls
     const fishSprites = getFishForEnvironment(environment);
 
-    return Array.from({ length: 30 }).map((_, i) => ({
+    const generatedFishes = Array.from({ length: 30 }).map((_, i) => ({
       id: i,
       sprite: fishSprites[Math.floor(Math.random() * fishSprites.length)],
       position: new THREE.Vector3(
@@ -39,7 +41,17 @@ export const FishTank: React.FC<FishTankProps> = ({
       verticalFrequency: 0.5 + Math.random() * 2,
       verticalAmplitude: 0.05 + Math.random() * 0.1,
     }));
+
+    return generatedFishes;
   }, [environment]);
+
+  // Report the actual fish sprites being displayed
+  React.useEffect(() => {
+    if (onFishUpdate) {
+      const displayedFish = fishes.slice(0, count).map((f) => f.sprite);
+      onFishUpdate(displayedFish);
+    }
+  }, [fishes, count, onFishUpdate]);
 
   return (
     <group>

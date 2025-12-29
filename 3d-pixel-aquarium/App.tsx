@@ -8,6 +8,7 @@ import {
 } from "@react-three/drei";
 import { FishTank } from "./components/FishTank";
 import { UIOverlay } from "./components/UIOverlay";
+import { FishIdentifier } from "./components/FishIdentifier";
 import type { Environment as EnvironmentType } from "./constants";
 
 const App: React.FC = () => {
@@ -23,6 +24,7 @@ const App: React.FC = () => {
   const [seaweedCount, setSeaweedCount] = useState(isMobile ? 2 : 3);
   const [refreshKey, setRefreshKey] = useState(0);
   const [environment, setEnvironment] = useState<EnvironmentType>("all");
+  const [currentFishList, setCurrentFishList] = useState<string[]>([]);
 
   // Handle window resize
   React.useEffect(() => {
@@ -44,6 +46,10 @@ const App: React.FC = () => {
 
   const handleRefresh = () => {
     setRefreshKey((prev) => prev + 1);
+  };
+
+  const handleFishUpdate = (fishSprites: string[]) => {
+    setCurrentFishList(fishSprites);
   };
 
   return (
@@ -75,6 +81,7 @@ const App: React.FC = () => {
             count={fishCount}
             seaweedCount={seaweedCount}
             environment={environment}
+            onFishUpdate={handleFishUpdate}
             key={refreshKey}
           />
 
@@ -119,6 +126,8 @@ const App: React.FC = () => {
         isMobile={isMobile}
         isPortrait={isPortrait}
       />
+
+      <FishIdentifier fishList={currentFishList} />
 
       <div className="absolute bottom-4 right-4 text-white/30 text-xs pointer-events-none">
         Drag to Orbit • Scroll to Zoom
