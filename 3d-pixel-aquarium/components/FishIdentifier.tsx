@@ -179,7 +179,7 @@ export const FishIdentifier: React.FC<FishIdentifierProps> = ({
   };
 
   return (
-    <div className="fixed bottom-20 left-6 pointer-events-auto z-50">
+    <div className="fixed bottom-6 left-6 pointer-events-auto z-50">
       {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
