@@ -4,7 +4,7 @@ interface FishNotificationProps {
   message: string | null;
   fishName?: string;
   fishImage?: string;
-  type: "added" | "removed" | null;
+  type: "added" | "removed" | "custom" | null;
   notificationKey?: number;
 }
 
@@ -30,6 +30,33 @@ export const FishNotification: React.FC<FishNotificationProps> = ({
 
   if (!isVisible || !type) return null;
 
+  // Determine colors based on type
+  const getColors = () => {
+    switch (type) {
+      case "added":
+        return "bg-green-900/95 border-green-500 text-green-300";
+      case "removed":
+        return "bg-red-900/95 border-red-500 text-red-300";
+      case "custom":
+        return "bg-pink-900/95 border-pink-500 text-pink-300";
+      default:
+        return "bg-slate-900/95 border-slate-500 text-slate-300";
+    }
+  };
+
+  const getIcon = () => {
+    switch (type) {
+      case "added":
+        return "🐠 FISH ADDED";
+      case "removed":
+        return "❌ FISH REMOVED";
+      case "custom":
+        return "✨ CUSTOM MODE";
+      default:
+        return "🐟";
+    }
+  };
+
   return (
     <div
       className={`fixed top-24 left-1/2 transform -translate-x-1/2 pointer-events-none z-50 transition-all duration-300 ${
@@ -37,11 +64,7 @@ export const FishNotification: React.FC<FishNotificationProps> = ({
       }`}
     >
       <div
-        className={`border-4 p-3 flex items-center gap-3 ${
-          type === "added"
-            ? "bg-green-900/95 border-green-500"
-            : "bg-red-900/95 border-red-500"
-        }`}
+        className={`border-4 p-3 flex items-center gap-3 ${getColors()}`}
         style={{
           boxShadow: "4px 4px 0 rgba(0,0,0,0.5)",
           minWidth: "250px",
@@ -58,11 +81,11 @@ export const FishNotification: React.FC<FishNotificationProps> = ({
         <div className="flex flex-col">
           <span
             className={`font-black text-xs tracking-widest ${
-              type === "added" ? "text-green-300" : "text-red-300"
+              type === "custom" ? "text-pink-300" : ""
             }`}
             style={{ fontFamily: "monospace" }}
           >
-            {type === "added" ? "🐠 FISH ADDED" : "❌ FISH REMOVED"}
+            {getIcon()}
           </span>
           {fishName && (
             <span

@@ -120,6 +120,12 @@ export const RIVER_POND_CREATURES = [
   "Water_Beetle",
 ].map((name) => `/fish/RiverPondCreatures/${name}.png`);
 
+// Custom fish (your own drawings)
+// Path: /fish/Fish?/
+export const CUSTOM_FISH = ["fish_1", "fish_2", "fish_3"].map(
+  (name) => `/fish/RealFish/${name}.png`
+);
+
 // Combined lists for each environment type
 export const ALL_POND = [...POND_FISH, ...RIVER_POND_CREATURES];
 export const ALL_RIVER = [...RIVER_FISH, ...RIVER_POND_CREATURES];
@@ -139,7 +145,14 @@ export const FISH_SPRITES = ALL_OCEAN;
 export type Environment = "ocean" | "river" | "pond" | "all";
 
 // Function to get fish for specific environment
-export function getFishForEnvironment(environment: Environment): string[] {
+export function getFishForEnvironment(
+  environment: Environment,
+  useCustomFish: boolean = false
+): string[] {
+  if (useCustomFish) {
+    return CUSTOM_FISH;
+  }
+
   switch (environment) {
     case "ocean":
       return ALL_OCEAN;

@@ -12,6 +12,7 @@ import { FishIdentifier } from "./components/FishIdentifier";
 import { FishNotification } from "./components/FishNotification";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { MusicPlayer } from "./components/MusicPlayer";
+import { EasterEggButton } from "./components/EasterEggButton";
 import type { Environment as EnvironmentType } from "./constants";
 
 const App: React.FC = () => {
@@ -30,11 +31,12 @@ const App: React.FC = () => {
   const [environment, setEnvironment] = useState<EnvironmentType>("all");
   const [currentFishList, setCurrentFishList] = useState<string[]>([]);
   const [previousFishList, setPreviousFishList] = useState<string[]>([]);
+  const [useCustomFish, setUseCustomFish] = useState(false);
   const [notification, setNotification] = useState<{
     message: string | null;
     fishName?: string;
     fishImage?: string;
-    type: "added" | "removed" | null;
+    type: "added" | "removed" | "custom" | null;
     key?: number;
   }>({ message: null, type: null });
 
@@ -67,6 +69,21 @@ const App: React.FC = () => {
 
   const handleRefresh = () => {
     setRefreshKey((prev) => prev + 1);
+  };
+
+  const handleEasterEgg = () => {
+    const newCustomMode = !useCustomFish;
+    setUseCustomFish(newCustomMode);
+    setRefreshKey((prev) => prev + 1);
+
+    // Show notification
+    setNotification({
+      message: newCustomMode
+        ? "Custom Fish Mode Activated!"
+        : "Normal Mode Restored",
+      type: "custom",
+      key: Date.now(),
+    });
   };
 
   const handleFishUpdate = (fishSprites: string[]) => {
@@ -158,6 +175,7 @@ const App: React.FC = () => {
               seaweedCount={seaweedCount}
               environment={environment}
               onFishUpdate={handleFishUpdate}
+              useCustomFish={useCustomFish}
               key={refreshKey}
             />
 
@@ -203,6 +221,8 @@ const App: React.FC = () => {
           onEnvironmentChange={setEnvironment}
           isMobile={isMobile}
           isPortrait={isPortrait}
+          useCustomFish={useCustomFish}
+          onEasterEgg={handleEasterEgg}
         />
 
         <FishIdentifier fishList={currentFishList} isMobile={isMobile} />

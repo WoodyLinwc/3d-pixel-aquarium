@@ -15,6 +15,7 @@ interface FishTankProps {
   seaweedCount: number;
   environment: Environment;
   onFishUpdate?: (fishSprites: string[]) => void;
+  useCustomFish?: boolean;
 }
 
 export const FishTank: React.FC<FishTankProps> = ({
@@ -22,11 +23,12 @@ export const FishTank: React.FC<FishTankProps> = ({
   seaweedCount,
   environment,
   onFishUpdate,
+  useCustomFish = false,
 }) => {
   // Generate random fish configurations
   const fishes = useMemo(() => {
     const safeMargin = 1.2; // Keep fish at least this far from walls
-    const fishSprites = getFishForEnvironment(environment);
+    const fishSprites = getFishForEnvironment(environment, useCustomFish);
 
     const generatedFishes = Array.from({ length: 30 }).map((_, i) => ({
       id: i,
@@ -43,7 +45,7 @@ export const FishTank: React.FC<FishTankProps> = ({
     }));
 
     return generatedFishes;
-  }, [environment]);
+  }, [environment, useCustomFish]);
 
   // Report the actual fish sprites being displayed
   React.useEffect(() => {

@@ -1,5 +1,6 @@
 import React from "react";
 import type { Environment } from "../constants";
+import { EasterEggButton } from "./EasterEggButton";
 
 interface UIOverlayProps {
   fishCount: number;
@@ -13,6 +14,8 @@ interface UIOverlayProps {
   onEnvironmentChange: (env: Environment) => void;
   isMobile: boolean;
   isPortrait: boolean;
+  useCustomFish: boolean;
+  onEasterEgg: () => void;
 }
 
 export const UIOverlay: React.FC<UIOverlayProps> = ({
@@ -27,6 +30,8 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
   onEnvironmentChange,
   isMobile,
   isPortrait,
+  useCustomFish,
+  onEasterEgg,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   return (
@@ -247,6 +252,41 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
                 </div>
               </div>
 
+              {/* Easter Egg Button & My Aquarium Button */}
+              <div className="flex gap-2">
+                <button
+                  onClick={onEasterEgg}
+                  className={`h-12 w-12 border-4 transition-all duration-300 pointer-events-auto ${
+                    useCustomFish
+                      ? "bg-pink-600 border-pink-400 animate-pulse"
+                      : "bg-slate-800 border-slate-600 hover:bg-slate-700 hover:border-cyan-400"
+                  }`}
+                  style={{
+                    boxShadow: "4px 4px 0 rgba(0,0,0,0.5)",
+                    fontFamily: "monospace",
+                  }}
+                  title={
+                    useCustomFish
+                      ? "Custom Fish Mode Active!"
+                      : "Secret Easter Egg - Click Me!"
+                  }
+                >
+                  <span className="text-2xl">
+                    {useCustomFish ? "✨" : "🥚"}
+                  </span>
+                </button>
+                <button
+                  className="flex-1 h-12 border-4 bg-slate-800 border-slate-600 hover:bg-slate-700 hover:border-cyan-400 active:translate-y-1 transition-all font-black text-xs text-white tracking-widest"
+                  style={{
+                    boxShadow: "4px 4px 0 rgba(0,0,0,0.5)",
+                    fontFamily: "monospace",
+                  }}
+                  title="My Aquarium (Coming Soon)"
+                >
+                  MY AQUARIUM
+                </button>
+              </div>
+
               {/* Refresh Button */}
               <button
                 onClick={onRefresh}
@@ -433,6 +473,39 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
                 </button>
               </div>
             </div>
+          </div>
+
+          {/* Easter Egg Button & My Aquarium Button */}
+          <div className="flex gap-2">
+            <button
+              onClick={onEasterEgg}
+              className={`h-12 w-12 border-4 transition-all duration-300 pointer-events-auto ${
+                useCustomFish
+                  ? "bg-pink-600 border-pink-400 animate-pulse"
+                  : "bg-slate-800 border-slate-600 hover:bg-slate-700 hover:border-cyan-400"
+              }`}
+              style={{
+                boxShadow: "4px 4px 0 rgba(0,0,0,0.5)",
+                fontFamily: "monospace",
+              }}
+              title={
+                useCustomFish
+                  ? "Custom Fish Mode Active!"
+                  : "Secret Easter Egg - Click Me!"
+              }
+            >
+              <span className="text-2xl">{useCustomFish ? "✨" : "🥚"}</span>
+            </button>
+            <button
+              className="flex-1 h-12 border-4 bg-slate-800 border-slate-600 hover:bg-slate-700 hover:border-cyan-400 active:translate-y-1 transition-all font-black text-xs text-white tracking-widest"
+              style={{
+                boxShadow: "4px 4px 0 rgba(0,0,0,0.5)",
+                fontFamily: "monospace",
+              }}
+              title="My Aquarium (Coming Soon)"
+            >
+              MY AQUARIUM
+            </button>
           </div>
 
           {/* Refresh Button */}

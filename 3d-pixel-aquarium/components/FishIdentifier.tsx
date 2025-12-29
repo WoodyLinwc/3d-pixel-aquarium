@@ -116,6 +116,11 @@ const FISH_TRANSLATIONS: Record<string, string> = {
   Snake: "蛇",
   Tadpole: "蝌蚪",
   "Water Beetle": "水甲虫",
+
+  // Custom Fish (Easter Egg!)
+  "fish 1": "神秘鱼1",
+  "fish 2": "神秘鱼2",
+  "fish 3": "神秘鱼3",
 };
 
 export const FishIdentifier: React.FC<FishIdentifierProps> = ({
@@ -149,6 +154,25 @@ export const FishIdentifier: React.FC<FishIdentifierProps> = ({
     acc[fish.category].push(fish);
     return acc;
   }, {} as Record<string, typeof uniqueFish>);
+
+  // Handle fish click - Easter egg for custom fish!
+  const handleFishClick = (fish: ReturnType<typeof getFishInfo>) => {
+    // Check if it's a custom fish (fish_1, fish_2, or fish_3)
+    if (
+      fish.category === "RealFish" &&
+      ["fish 1", "fish 2", "fish 3"].includes(fish.name)
+    ) {
+      // Rick Roll easter egg!
+      window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank");
+    } else {
+      // Normal behavior: Google Image search
+      const searchQuery = encodeURIComponent(fish.name + " fish");
+      window.open(
+        `https://www.google.com/search?tbm=isch&q=${searchQuery}`,
+        "_blank"
+      );
+    }
+  };
 
   return (
     <div className="fixed bottom-20 left-6 pointer-events-auto z-50">
@@ -196,15 +220,7 @@ export const FishIdentifier: React.FC<FishIdentifierProps> = ({
                 {fishes.map((fish, idx) => (
                   <button
                     key={idx}
-                    onClick={() => {
-                      const searchQuery = encodeURIComponent(
-                        fish.name + " fish"
-                      );
-                      window.open(
-                        `https://www.google.com/search?tbm=isch&q=${searchQuery}`,
-                        "_blank"
-                      );
-                    }}
+                    onClick={() => handleFishClick(fish)}
                     className="bg-slate-800 border-2 border-slate-600 p-2 flex flex-col items-center hover:bg-slate-700 hover:border-cyan-400 active:translate-y-0.5 transition-all cursor-pointer"
                     style={{ boxShadow: "2px 2px 0 rgba(0,0,0,0.3)" }}
                   >
