@@ -75,7 +75,7 @@ export const FishTank: React.FC<FishTankProps> = ({
           (Math.random() - 0.5) * (TANK_SIZE.height - safeMargin * 2),
           (Math.random() - 0.5) * (TANK_SIZE.depth - safeMargin * 2)
         ),
-        speed: 0.005 + speedSeed * 0.03,
+        speed: 0.008 + speedSeed * 0.03,
         scale: 0.3 + scaleSeed * 0.4, // Consistent scale for this fish species
         verticalFrequency: 0.5 + vFreqSeed * 2,
         verticalAmplitude: 0.05 + vAmpSeed * 0.1,
