@@ -85,6 +85,16 @@ const App: React.FC = () => {
     setRefreshKey((prev) => prev + 1);
   };
 
+  const handleAddFish = () => {
+    setFishCount((prev) => Math.min(prev + 1, 30));
+    setRefreshKey((prev) => prev + 1); // Force regenerate fish
+  };
+
+  const handleRemoveFish = () => {
+    setFishCount((prev) => Math.max(prev - 1, 0));
+    setRefreshKey((prev) => prev + 1); // Force regenerate fish
+  };
+
   const handleEasterEgg = () => {
     const newCustomMode = !useCustomFish;
     setUseCustomFish(newCustomMode);
@@ -353,8 +363,8 @@ const App: React.FC = () => {
 
         <UIOverlay
           fishCount={fishCount}
-          onAddFish={() => setFishCount((prev) => Math.min(prev + 1, 30))}
-          onRemoveFish={() => setFishCount((prev) => Math.max(prev - 1, 0))}
+          onAddFish={handleAddFish}
+          onRemoveFish={handleRemoveFish}
           onRefresh={handleRefresh}
           seaweedCount={seaweedCount}
           onAddSeaweed={() => setSeaweedCount((prev) => Math.min(prev + 1, 6))}
