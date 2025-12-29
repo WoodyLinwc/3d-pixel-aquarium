@@ -65,7 +65,7 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({
               className="text-yellow-300 font-bold text-xs"
               style={{ fontFamily: "monospace" }}
             >
-              💻 Use laptop for best experience!
+              💻 Use computer for best experience!
             </p>
           </div>
         )}
