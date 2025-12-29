@@ -51,7 +51,7 @@ export const FishNotification: React.FC<FishNotificationProps> = ({
       case "removed":
         return "❌ FISH REMOVED";
       case "custom":
-        return "✨ CUSTOM MODE";
+        return "✨ BEAUTIFUL DRAWING MODE";
       default:
         return "🐟";
     }
