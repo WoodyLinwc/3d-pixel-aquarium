@@ -127,7 +127,7 @@ const App: React.FC = () => {
         isPortrait={isPortrait}
       />
 
-      <FishIdentifier fishList={currentFishList} />
+      <FishIdentifier fishList={currentFishList} isMobile={isMobile} />
 
       <div className="absolute bottom-4 right-4 text-white/30 text-xs pointer-events-none">
         Drag to Orbit • Scroll to Zoom

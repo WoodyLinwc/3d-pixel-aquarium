@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 interface FishIdentifierProps {
   fishList: string[]; // Array of fish sprite paths currently in the tank
+  isMobile?: boolean; // Detect if on mobile device
 }
 
 // Fish name translations (English to Chinese)
@@ -117,8 +118,11 @@ const FISH_TRANSLATIONS: Record<string, string> = {
   "Water Beetle": "水甲虫",
 };
 
-export const FishIdentifier: React.FC<FishIdentifierProps> = ({ fishList }) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const FishIdentifier: React.FC<FishIdentifierProps> = ({
+  fishList,
+  isMobile = false,
+}) => {
+  const [isOpen, setIsOpen] = useState(!isMobile); // Open by default on desktop, closed on mobile
 
   // Extract fish names from sprite paths
   const getFishInfo = (spritePath: string) => {
