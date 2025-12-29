@@ -28,6 +28,7 @@ export const FishTank: React.FC<FishTankProps> = ({
   savedFishList,
 }) => {
   // Generate random fish configurations
+  // IMPORTANT: Remove savedFishList from dependencies to prevent regeneration
   const fishes = useMemo(() => {
     const safeMargin = 1.2; // Keep fish at least this far from walls
     const fishSprites = getFishForEnvironment(environment, useCustomFish);
@@ -82,7 +83,7 @@ export const FishTank: React.FC<FishTankProps> = ({
     });
 
     return generatedFishes;
-  }, [environment, useCustomFish, savedFishList]);
+  }, [environment, useCustomFish]); // Removed savedFishList from dependencies!
 
   // Report the actual fish sprites being displayed
   React.useEffect(() => {
@@ -91,6 +92,23 @@ export const FishTank: React.FC<FishTankProps> = ({
       onFishUpdate(displayedFish);
     }
   }, [fishes, count, onFishUpdate]);
+
+  // Update fish sprites when savedFishList changes, but keep positions
+  const actualFishes = useMemo(() => {
+    if (savedFishList && savedFishList.length > 0) {
+      // Use saved fish sprites but keep the generated positions/speeds
+      return fishes.map((fish, i) => {
+        if (i < savedFishList.length) {
+          return {
+            ...fish,
+            sprite: savedFishList[i],
+          };
+        }
+        return fish;
+      });
+    }
+    return fishes;
+  }, [fishes, savedFishList]);
 
   return (
     <group>
@@ -143,7 +161,7 @@ export const FishTank: React.FC<FishTankProps> = ({
       <Bubbles count={40} />
 
       {/* Render selected number of fish */}
-      {fishes.slice(0, count).map((fish) => (
+      {actualFishes.slice(0, count).map((fish) => (
         <Fish key={fish.id} {...fish} />
       ))}
 
