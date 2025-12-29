@@ -194,30 +194,39 @@ export const FishIdentifier: React.FC<FishIdentifierProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 {fishes.map((fish, idx) => (
-                  <div
+                  <button
                     key={idx}
-                    className="bg-slate-800 border-2 border-slate-600 p-2 flex flex-col items-center"
+                    onClick={() => {
+                      const searchQuery = encodeURIComponent(
+                        fish.name + " fish"
+                      );
+                      window.open(
+                        `https://www.google.com/search?tbm=isch&q=${searchQuery}`,
+                        "_blank"
+                      );
+                    }}
+                    className="bg-slate-800 border-2 border-slate-600 p-2 flex flex-col items-center hover:bg-slate-700 hover:border-cyan-400 active:translate-y-0.5 transition-all cursor-pointer"
                     style={{ boxShadow: "2px 2px 0 rgba(0,0,0,0.3)" }}
                   >
                     <img
                       src={fish.spritePath}
                       alt={fish.name}
-                      className="w-16 h-16 object-contain mb-1"
+                      className="w-16 h-16 object-contain mb-1 pointer-events-none"
                       style={{ imageRendering: "pixelated" }}
                     />
                     <span
-                      className="text-white text-[10px] text-center leading-tight"
+                      className="text-white text-[10px] text-center leading-tight pointer-events-none"
                       style={{ fontFamily: "monospace" }}
                     >
                       {fish.name}
                     </span>
                     <span
-                      className="text-cyan-300 text-[9px] text-center leading-tight mt-0.5"
+                      className="text-cyan-300 text-[9px] text-center leading-tight mt-0.5 pointer-events-none"
                       style={{ fontFamily: "sans-serif" }}
                     >
                       {fish.chineseName}
                     </span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
