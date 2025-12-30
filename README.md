@@ -13,7 +13,7 @@ A tranquil 3D aquarium experience where pixel-art marine life swims gracefully i
 
 ## 🐟 Massive Fish Database
 
-Over 100+ species across multiple categories:
+Over **100+ species** across multiple categories:
 
 - Ocean Fish - From Clownfish to Anglerfish
 - Ocean Creatures - Jellyfish, Octopus, Sea Turtles and more
@@ -32,3 +32,18 @@ Over 100+ species across multiple categories:
 - Discover the secret easter egg... 🥚✨ and more!
 
 ![Easter Egg](./img/easterEgg.png)
+
+## Technical Highlights
+
+- React Three Fiber for declarative 3D rendering
+- Pixel-Perfect Sprites with nearest-neighbor filtering
+- Dynamic Lighting with shadows and reflections
+- Responsive Design - Works on desktop and mobile
+- LocalStorage Integration - Your aquarium persists between sessions
+- Smooth Animations - Seaweed sways, bubbles rise, fish swim naturally
+
+## Credits
+
+For the fish sprites, I bought them from [shubibubi](https://itch.io/profile/shubibubi) on [itch.io](https://itch.io/).
+
+For the Lofi Music, I got it from [XtremeFreddy](https://pixabay.com/users/xtremefreddy-32332307/) on [Pixabay](https://pixabay.com/) under the license.
