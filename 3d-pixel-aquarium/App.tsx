@@ -87,18 +87,18 @@ const App: React.FC = () => {
 
   const handleAddFish = () => {
     setFishCount((prev) => Math.min(prev + 1, 30));
-    setRefreshKey((prev) => prev + 1); // Force regenerate fish
+    // REMOVED: setRefreshKey - no longer forcing regeneration!
   };
 
   const handleRemoveFish = () => {
     setFishCount((prev) => Math.max(prev - 1, 0));
-    setRefreshKey((prev) => prev + 1); // Force regenerate fish
+    // REMOVED: setRefreshKey - no longer forcing regeneration!
   };
 
   const handleEasterEgg = () => {
     const newCustomMode = !useCustomFish;
     setUseCustomFish(newCustomMode);
-    setRefreshKey((prev) => prev + 1);
+    setRefreshKey((prev) => prev + 1); // Still refresh for mode change
 
     // Show notification
     setNotification({
@@ -108,6 +108,11 @@ const App: React.FC = () => {
       type: "custom",
       key: Date.now(),
     });
+  };
+
+  const handleEnvironmentChange = (env: EnvironmentType) => {
+    setEnvironment(env);
+    setRefreshKey((prev) => prev + 1); // Refresh when environment changes
   };
 
   const handleFishUpdate = (fishSprites: string[]) => {
@@ -218,6 +223,7 @@ const App: React.FC = () => {
         setSeaweedCount(state.seaweedCount);
         setEnvironment(state.environment);
         setUseCustomFish(state.useCustomFish);
+        // Set the saved fish list so it can be restored
         setCurrentFishList(state.currentFishList || []);
         setPreviousFishList(state.currentFishList || []);
         setRefreshKey((prev) => prev + 1);
@@ -329,7 +335,11 @@ const App: React.FC = () => {
               environment={environment}
               onFishUpdate={handleFishUpdate}
               useCustomFish={useCustomFish}
-              savedFishList={isMyAquarium ? currentFishList : undefined}
+              savedFishList={
+                isMyAquarium && currentFishList.length > 0
+                  ? currentFishList
+                  : undefined
+              }
               key={refreshKey}
             />
 
@@ -372,7 +382,7 @@ const App: React.FC = () => {
             setSeaweedCount((prev) => Math.max(prev - 1, 0))
           }
           environment={environment}
-          onEnvironmentChange={setEnvironment}
+          onEnvironmentChange={handleEnvironmentChange}
           isMobile={isMobile}
           isPortrait={isPortrait}
           useCustomFish={useCustomFish}
