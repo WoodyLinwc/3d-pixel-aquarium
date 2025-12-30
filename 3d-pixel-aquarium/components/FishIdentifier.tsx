@@ -128,6 +128,7 @@ export const FishIdentifier: React.FC<FishIdentifierProps> = ({
   isMobile = false,
 }) => {
   const [isOpen, setIsOpen] = useState(!isMobile); // Open by default on desktop, closed on mobile
+  const [viewMode, setViewMode] = useState<"tank" | "codex">("tank"); // Toggle between tank view and codex view
 
   // Extract fish names from sprite paths
   const getFishInfo = (spritePath: string) => {
@@ -155,6 +156,149 @@ export const FishIdentifier: React.FC<FishIdentifierProps> = ({
     return acc;
   }, {} as Record<string, typeof uniqueFish>);
 
+  // Get all available fish for codex
+  const getAllAvailableFish = () => {
+    const allCategories = {
+      OceanFish: [
+        "Angelfish",
+        "Anglerfish",
+        "Atlantic Bass",
+        "Ballan Wrasse",
+        "Banded Butterflyfish",
+        "Black Drum",
+        "Blob Fish",
+        "Blue Tang",
+        "Bonefish",
+        "Bream",
+        "Clownfish",
+        "Cobia",
+        "Cod",
+        "Cowfish",
+        "Dab",
+        "Flounder",
+        "Hailbut",
+        "Herring",
+        "Lion Fish",
+        "Mackerel",
+        "Parrot Fish",
+        "Plaice",
+        "Pollock",
+        "Pompano",
+        "Pufferfish",
+        "Red Snapper",
+        "Salmon",
+        "Sardine",
+        "Sea Horse",
+        "Silver Eel",
+        "Stingray",
+        "Tuna",
+        "Weaver",
+        "Whiting",
+        "Wolfish",
+      ],
+      OceanCreatures: [
+        "Blue Lobster",
+        "Christmas Tree Worm",
+        "Crab",
+        "Dumbo Octopus",
+        "Jellyfish",
+        "Lobster",
+        "Octopus",
+        "Pink Fantasia",
+        "Saltwater Snail",
+        "Sea Angel",
+        "Sea Cucumber",
+        "Sea Pen",
+        "Sea Spider",
+        "Sea Urchin",
+        "Shrimp",
+        "Squid",
+        "Turtle",
+      ],
+      RiverFish: [
+        "Betta",
+        "Bitterling",
+        "Black Bass",
+        "Bluegill",
+        "Catfish",
+        "Char",
+        "Chub",
+        "Crappie",
+        "Crucian Carp",
+        "Dace",
+        "Eel",
+        "Guppy",
+        "King Salmon",
+        "Largemouth Bass",
+        "Loadch",
+        "Neon Tetra",
+        "Perch",
+        "Piranha",
+        "Rainbow Trout",
+        "Smelt",
+        "Tilapia",
+        "Trout",
+        "Walleye",
+        "Yellow Perch",
+      ],
+      PondFish: [
+        "Fancy Goldfish",
+        "Fathead Minnow",
+        "Gizzard Shad",
+        "Goby",
+        "Golden Tench",
+        "Goldfish",
+        "Grass Carp",
+        "Green Sunfish",
+        "High Fin Banded Shark",
+        "Koi",
+        "Molly",
+        "Paradise Fish",
+        "Plecostomus",
+        "Pumpkin Seed Fish",
+        "Red Shiner",
+        "Rosette",
+        "Shubukin",
+      ],
+      RiverPondCreatures: [
+        "Axolotl",
+        "Crayfish",
+        "Freshwater Snail",
+        "Frog",
+        "Snake",
+        "Tadpole",
+        "Water Beetle",
+      ],
+      RealFish: ["fish 1", "fish 2", "fish 3"],
+    };
+
+    const allFish: ReturnType<typeof getFishInfo>[] = [];
+    Object.entries(allCategories).forEach(([category, names]) => {
+      names.forEach((name) => {
+        const spritePath = `/fish/${category}/${name.replace(/ /g, "_")}.png`;
+        allFish.push(getFishInfo(spritePath));
+      });
+    });
+
+    return allFish;
+  };
+
+  const allAvailableFish = getAllAvailableFish();
+
+  // Group all available fish by category
+  const allGroupedFish = allAvailableFish.reduce((acc, fish) => {
+    if (!acc[fish.category]) {
+      acc[fish.category] = [];
+    }
+    acc[fish.category].push(fish);
+    return acc;
+  }, {} as Record<string, typeof allAvailableFish>);
+
+  // Check if a fish is currently in the tank
+  const isInTank = (fishName: string) => {
+    return uniqueFish.some((f) => f.name === fishName);
+  };
+
   // Handle fish click - Easter egg for custom fish!
   const handleFishClick = (fish: ReturnType<typeof getFishInfo>) => {
     // Check if it's a custom fish (fish_1, fish_2, or fish_3)
@@ -178,6 +322,64 @@ export const FishIdentifier: React.FC<FishIdentifierProps> = ({
     }
   };
 
+  // Render fish card
+  const renderFishCard = (
+    fish: ReturnType<typeof getFishInfo>,
+    idx: number,
+    isCodex: boolean = false
+  ) => {
+    const inTank = isInTank(fish.name);
+    return (
+      <button
+        key={idx}
+        onClick={() => handleFishClick(fish)}
+        className={`border-2 p-2 flex flex-col items-center hover:bg-slate-700 active:translate-y-0.5 transition-all cursor-pointer ${
+          isCodex
+            ? inTank
+              ? "bg-cyan-900 border-cyan-500" // In tank - highlight
+              : "bg-slate-800 border-slate-600 opacity-60" // Not in tank - dim
+            : "bg-slate-800 border-slate-600 hover:border-cyan-400" // Tank view - normal
+        }`}
+        style={{ boxShadow: "2px 2px 0 rgba(0,0,0,0.3)" }}
+      >
+        <img
+          src={fish.spritePath}
+          alt={fish.name}
+          className="w-16 h-16 object-contain mb-1 pointer-events-none"
+          style={{ imageRendering: "pixelated" }}
+        />
+        <span
+          className={`text-[10px] text-center leading-tight pointer-events-none ${
+            isCodex && inTank ? "text-cyan-300 font-bold" : "text-white"
+          }`}
+          style={{ fontFamily: "monospace" }}
+        >
+          {fish.name}
+        </span>
+        <span
+          className={`text-[9px] text-center leading-tight mt-0.5 pointer-events-none ${
+            isCodex && inTank ? "text-cyan-200" : "text-cyan-300"
+          }`}
+          style={{ fontFamily: "sans-serif" }}
+        >
+          {fish.chineseName}
+        </span>
+        {isCodex && inTank && (
+          <span
+            className="text-[8px] text-cyan-400 font-bold mt-1 pointer-events-none"
+            style={{ fontFamily: "monospace" }}
+          >
+            ✓ IN TANK
+          </span>
+        )}
+      </button>
+    );
+  };
+
+  const dataToDisplay = viewMode === "tank" ? groupedFish : allGroupedFish;
+  const totalCount =
+    viewMode === "tank" ? uniqueFish.length : allAvailableFish.length;
+
   return (
     <div className="fixed bottom-6 left-6 pointer-events-auto z-50">
       {/* Toggle Button */}
@@ -195,20 +397,65 @@ export const FishIdentifier: React.FC<FishIdentifierProps> = ({
       {/* Fish Panel */}
       {isOpen && (
         <div
-          className="absolute bottom-16 left-0 bg-slate-900/95 border-4 border-slate-600 p-4 max-h-96 overflow-y-auto"
+          className="absolute bottom-16 left-0 bg-slate-900/95 border-4 border-slate-600 p-4 max-h-[500px] overflow-y-auto"
           style={{
             boxShadow: "4px 4px 0 rgba(0,0,0,0.5)",
             width: "320px",
           }}
         >
-          <h3
-            className="text-yellow-400 font-black text-sm tracking-widest mb-3 text-center border-b-2 border-slate-600 pb-2"
-            style={{ fontFamily: "monospace" }}
-          >
-            SPECIES IN TANK
-          </h3>
+          {/* Header with View Toggle */}
+          <div className="mb-3">
+            <h3
+              className="text-yellow-400 font-black text-sm tracking-widest text-center border-b-2 border-slate-600 pb-2 mb-2"
+              style={{ fontFamily: "monospace" }}
+            >
+              {viewMode === "tank" ? "SPECIES IN TANK" : "FISH CODEX"}
+            </h3>
 
-          {Object.entries(groupedFish).map(([category, fishes]) => (
+            {/* View Mode Buttons */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setViewMode("tank")}
+                className={`flex-1 h-10 border-2 transition-all font-bold text-xs tracking-wide ${
+                  viewMode === "tank"
+                    ? "bg-cyan-700 border-cyan-500 text-white"
+                    : "bg-slate-800 border-slate-600 text-slate-400 hover:bg-slate-700"
+                }`}
+                style={{
+                  boxShadow: "2px 2px 0 rgba(0,0,0,0.3)",
+                  fontFamily: "monospace",
+                }}
+              >
+                🐠 TANK VIEW
+              </button>
+              <button
+                onClick={() => setViewMode("codex")}
+                className={`flex-1 h-10 border-2 transition-all font-bold text-xs tracking-wide ${
+                  viewMode === "codex"
+                    ? "bg-purple-700 border-purple-500 text-white"
+                    : "bg-slate-800 border-slate-600 text-slate-400 hover:bg-slate-700"
+                }`}
+                style={{
+                  boxShadow: "2px 2px 0 rgba(0,0,0,0.3)",
+                  fontFamily: "monospace",
+                }}
+              >
+                📖 CODEX
+              </button>
+            </div>
+
+            {/* Description */}
+            {viewMode === "codex" && (
+              <p
+                className="text-slate-400 text-[9px] text-center mt-2 leading-tight"
+                style={{ fontFamily: "monospace" }}
+              >
+                Highlighted fish are currently in your tank
+              </p>
+            )}
+          </div>
+
+          {Object.entries(dataToDisplay).map(([category, fishes]) => (
             <div key={category} className="mb-4">
               <h4
                 className="text-cyan-400 font-bold text-xs tracking-wide mb-2"
@@ -221,33 +468,9 @@ export const FishIdentifier: React.FC<FishIdentifierProps> = ({
               </h4>
 
               <div className="grid grid-cols-2 gap-2">
-                {fishes.map((fish, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleFishClick(fish)}
-                    className="bg-slate-800 border-2 border-slate-600 p-2 flex flex-col items-center hover:bg-slate-700 hover:border-cyan-400 active:translate-y-0.5 transition-all cursor-pointer"
-                    style={{ boxShadow: "2px 2px 0 rgba(0,0,0,0.3)" }}
-                  >
-                    <img
-                      src={fish.spritePath}
-                      alt={fish.name}
-                      className="w-16 h-16 object-contain mb-1 pointer-events-none"
-                      style={{ imageRendering: "pixelated" }}
-                    />
-                    <span
-                      className="text-white text-[10px] text-center leading-tight pointer-events-none"
-                      style={{ fontFamily: "monospace" }}
-                    >
-                      {fish.name}
-                    </span>
-                    <span
-                      className="text-cyan-300 text-[9px] text-center leading-tight mt-0.5 pointer-events-none"
-                      style={{ fontFamily: "sans-serif" }}
-                    >
-                      {fish.chineseName}
-                    </span>
-                  </button>
-                ))}
+                {fishes.map((fish, idx) =>
+                  renderFishCard(fish, idx, viewMode === "codex")
+                )}
               </div>
             </div>
           ))}
@@ -256,7 +479,9 @@ export const FishIdentifier: React.FC<FishIdentifierProps> = ({
             className="mt-3 pt-3 border-t-2 border-slate-600 text-slate-400 text-[9px] text-center"
             style={{ fontFamily: "monospace" }}
           >
-            Total Species: {uniqueFish.length}
+            {viewMode === "tank"
+              ? `Total Species: ${totalCount}`
+              : `Total Available: ${totalCount} | In Tank: ${uniqueFish.length}`}
           </div>
         </div>
       )}
