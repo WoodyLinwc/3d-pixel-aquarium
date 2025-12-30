@@ -2,6 +2,8 @@
 
 A tranquil 3D aquarium experience where pixel-art marine life swims gracefully in a realistic glass tank. Built with **React Three Fiber** and **Three.js**, this interactive aquarium brings the soothing vibes of fishkeeping to your browser!
 
+[https://woody-lin-3d-pixel-aquarium.vercel.app/](https://woody-lin-3d-pixel-aquarium.vercel.app/)
+
 ![Aquarium overview](./img/aquarium.png)
 
 ## Interactive Controls
