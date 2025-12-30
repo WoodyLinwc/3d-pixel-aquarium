@@ -27,10 +27,27 @@ export const FishTank: React.FC<FishTankProps> = ({
   useCustomFish = false,
   savedFishList,
 }) => {
+  // Store the generated fish list persistently
+  const fishPoolRef = useRef<
+    Array<{
+      id: number;
+      sprite: string;
+      position: THREE.Vector3;
+      speed: number;
+      scale: number;
+      verticalFrequency: number;
+      verticalAmplitude: number;
+    }>
+  >([]);
+
+  // Track previous environment and custom fish mode
+  const prevEnvironmentRef = useRef(environment);
+  const prevCustomFishRef = useRef(useCustomFish);
+  const hasRestoredRef = useRef(false); // Track if we've restored from savedFishList
+
   // Generate random fish configurations
-  // IMPORTANT: Remove savedFishList from dependencies to prevent regeneration
   const fishes = useMemo(() => {
-    const safeMargin = 1.2; // Keep fish at least this far from walls
+    const safeMargin = 1.2;
     const fishSprites = getFishForEnvironment(environment, useCustomFish);
 
     // Simple hash function to get consistent random values for each fish sprite
@@ -39,7 +56,7 @@ export const FishTank: React.FC<FishTankProps> = ({
       for (let i = 0; i < str.length; i++) {
         const char = str.charCodeAt(i);
         hash = (hash << 5) - hash + char;
-        hash = hash & hash; // Convert to 32bit integer
+        hash = hash & hash;
       }
       return Math.abs(hash);
     };
@@ -50,40 +67,83 @@ export const FishTank: React.FC<FishTankProps> = ({
       return x - Math.floor(x);
     };
 
-    // If we have a saved fish list, use it to maintain the exact fish
-    const generatedFishes = Array.from({ length: 30 }).map((_, i) => {
-      // Use saved fish if available and within range, otherwise random
-      let sprite: string;
-      if (savedFishList && i < savedFishList.length) {
-        sprite = savedFishList[i];
-      } else {
-        sprite = fishSprites[Math.floor(Math.random() * fishSprites.length)];
+    // Check if environment or custom mode changed - if so, reset the pool
+    if (
+      prevEnvironmentRef.current !== environment ||
+      prevCustomFishRef.current !== useCustomFish
+    ) {
+      fishPoolRef.current = [];
+      hasRestoredRef.current = false;
+      prevEnvironmentRef.current = environment;
+      prevCustomFishRef.current = useCustomFish;
+    }
+
+    // If we have saved fish list and haven't restored yet, restore them
+    if (savedFishList && savedFishList.length > 0 && !hasRestoredRef.current) {
+      const restoredFish = savedFishList.map((sprite, i) => {
+        const spriteHash = hashString(sprite);
+        const speedSeed = seededRandom(spriteHash + 1);
+        const scaleSeed = seededRandom(spriteHash + 2);
+        const vFreqSeed = seededRandom(spriteHash + 3);
+        const vAmpSeed = seededRandom(spriteHash + 4);
+
+        return {
+          id: i,
+          sprite,
+          position: new THREE.Vector3(
+            (Math.random() - 0.5) * (TANK_SIZE.width - safeMargin * 2),
+            (Math.random() - 0.5) * (TANK_SIZE.height - safeMargin * 2),
+            (Math.random() - 0.5) * (TANK_SIZE.depth - safeMargin * 2)
+          ),
+          speed: 0.008 + speedSeed * 0.03,
+          scale: 0.3 + scaleSeed * 0.4,
+          verticalFrequency: 0.5 + vFreqSeed * 2,
+          verticalAmplitude: 0.05 + vAmpSeed * 0.1,
+        };
+      });
+
+      fishPoolRef.current = restoredFish;
+      hasRestoredRef.current = true;
+      return restoredFish;
+    }
+
+    // Check if we need to add more fish to the pool
+    const currentPoolSize = fishPoolRef.current.length;
+
+    if (currentPoolSize < count) {
+      // Add new fish to the pool
+      const fishToAdd = count - currentPoolSize;
+
+      for (let i = 0; i < fishToAdd; i++) {
+        const sprite =
+          fishSprites[Math.floor(Math.random() * fishSprites.length)];
+        const spriteHash = hashString(sprite);
+        const speedSeed = seededRandom(spriteHash + 1);
+        const scaleSeed = seededRandom(spriteHash + 2);
+        const vFreqSeed = seededRandom(spriteHash + 3);
+        const vAmpSeed = seededRandom(spriteHash + 4);
+
+        fishPoolRef.current.push({
+          id: currentPoolSize + i,
+          sprite,
+          position: new THREE.Vector3(
+            (Math.random() - 0.5) * (TANK_SIZE.width - safeMargin * 2),
+            (Math.random() - 0.5) * (TANK_SIZE.height - safeMargin * 2),
+            (Math.random() - 0.5) * (TANK_SIZE.depth - safeMargin * 2)
+          ),
+          speed: 0.008 + speedSeed * 0.03,
+          scale: 0.3 + scaleSeed * 0.4,
+          verticalFrequency: 0.5 + vFreqSeed * 2,
+          verticalAmplitude: 0.05 + vAmpSeed * 0.1,
+        });
       }
+    } else if (currentPoolSize > count) {
+      // Remove fish from the pool (from the end)
+      fishPoolRef.current = fishPoolRef.current.slice(0, count);
+    }
 
-      // Generate consistent speeds based on fish sprite
-      const spriteHash = hashString(sprite);
-      const speedSeed = seededRandom(spriteHash + 1);
-      const scaleSeed = seededRandom(spriteHash + 2);
-      const vFreqSeed = seededRandom(spriteHash + 3);
-      const vAmpSeed = seededRandom(spriteHash + 4);
-
-      return {
-        id: i,
-        sprite,
-        position: new THREE.Vector3(
-          (Math.random() - 0.5) * (TANK_SIZE.width - safeMargin * 2),
-          (Math.random() - 0.5) * (TANK_SIZE.height - safeMargin * 2),
-          (Math.random() - 0.5) * (TANK_SIZE.depth - safeMargin * 2)
-        ),
-        speed: 0.008 + speedSeed * 0.03,
-        scale: 0.3 + scaleSeed * 0.4, // Consistent scale for this fish species
-        verticalFrequency: 0.5 + vFreqSeed * 2,
-        verticalAmplitude: 0.05 + vAmpSeed * 0.1,
-      };
-    });
-
-    return generatedFishes;
-  }, [environment, useCustomFish]); // Removed savedFishList from dependencies!
+    return fishPoolRef.current;
+  }, [count, environment, useCustomFish, savedFishList]);
 
   // Report the actual fish sprites being displayed
   React.useEffect(() => {
@@ -92,23 +152,6 @@ export const FishTank: React.FC<FishTankProps> = ({
       onFishUpdate(displayedFish);
     }
   }, [fishes, count, onFishUpdate]);
-
-  // Update fish sprites when savedFishList changes, but keep positions
-  const actualFishes = useMemo(() => {
-    if (savedFishList && savedFishList.length > 0) {
-      // Use saved fish sprites but keep the generated positions/speeds
-      return fishes.map((fish, i) => {
-        if (i < savedFishList.length) {
-          return {
-            ...fish,
-            sprite: savedFishList[i],
-          };
-        }
-        return fish;
-      });
-    }
-    return fishes;
-  }, [fishes, savedFishList]);
 
   return (
     <group>
@@ -161,7 +204,7 @@ export const FishTank: React.FC<FishTankProps> = ({
       <Bubbles count={40} />
 
       {/* Render selected number of fish */}
-      {actualFishes.slice(0, count).map((fish) => (
+      {fishes.slice(0, count).map((fish) => (
         <Fish key={fish.id} {...fish} />
       ))}
 
