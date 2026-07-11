@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 export const MusicPlayer: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.3); // Default volume at 30%
+  const [volume, setVolume] = useState(0.3);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -12,15 +12,23 @@ export const MusicPlayer: React.FC = () => {
   }, [volume]);
 
   const toggleMusic = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play().catch((error) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      // FIX: play() returns a promise that the browser can reject (autoplay
+      // policy). Before, the button flipped to "MUSIC ON" even when playback
+      // failed, leaving the UI out of sync with reality.
+      audio
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch((error) => {
           console.log("Audio play failed:", error);
+          setIsPlaying(false);
         });
-      }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -34,9 +42,7 @@ export const MusicPlayer: React.FC = () => {
 
   return (
     <div className="fixed bottom-6 right-6 pointer-events-auto z-50">
-      {/* Music Control Button */}
       <div className="flex flex-col items-end gap-2">
-        {/* Volume Slider (only shown when music is playing) */}
         {isPlaying && (
           <div
             className="bg-slate-800 border-4 border-slate-600 p-2 flex items-center gap-2"
@@ -60,7 +66,6 @@ export const MusicPlayer: React.FC = () => {
           </div>
         )}
 
-        {/* Toggle Button */}
         <button
           onClick={toggleMusic}
           className={`border-4 px-4 py-3 hover:brightness-110 active:translate-y-1 transition-transform font-black text-sm text-white tracking-widest ${
@@ -78,8 +83,8 @@ export const MusicPlayer: React.FC = () => {
         </button>
       </div>
 
-      {/* Hidden Audio Element */}
-      <audio ref={audioRef} loop>
+      {/* FIX: preload="none" — don't download the whole MP3 on page load */}
+      <audio ref={audioRef} loop preload="none">
         <source src="/XtremeFreddy.mp3" type="audio/mpeg" />
         <source src="/XtremeFreddy.ogg" type="audio/ogg" />
         Your browser does not support the audio element.

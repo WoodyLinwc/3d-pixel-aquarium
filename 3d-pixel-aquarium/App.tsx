@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useState, useRef, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   OrbitControls,
@@ -12,7 +12,6 @@ import { FishIdentifier } from "./components/FishIdentifier";
 import { FishNotification } from "./components/FishNotification";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { MusicPlayer } from "./components/MusicPlayer";
-import { EasterEggButton } from "./components/EasterEggButton";
 import type { Environment as EnvironmentType } from "./constants";
 
 // LocalStorage key
@@ -28,12 +27,11 @@ interface SavedAquariumState {
 }
 
 const App: React.FC = () => {
-  // Detect if mobile (portrait orientation or small screen)
   const [isMobile, setIsMobile] = useState(
-    window.innerWidth < 768 || window.innerHeight > window.innerWidth
+    window.innerWidth < 768 || window.innerHeight > window.innerWidth,
   );
   const [isPortrait, setIsPortrait] = useState(
-    window.innerHeight > window.innerWidth
+    window.innerHeight > window.innerWidth,
   );
   const [isLoading, setIsLoading] = useState(true);
 
@@ -42,10 +40,8 @@ const App: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [environment, setEnvironment] = useState<EnvironmentType>("all");
   const [currentFishList, setCurrentFishList] = useState<string[]>([]);
-  const [previousFishList, setPreviousFishList] = useState<string[]>([]);
   const [useCustomFish, setUseCustomFish] = useState(false);
   const [isMyAquarium, setIsMyAquarium] = useState(false);
-  const [suppressNotifications, setSuppressNotifications] = useState(false);
   const [notification, setNotification] = useState<{
     message: string | null;
     fishName?: string;
@@ -53,6 +49,15 @@ const App: React.FC = () => {
     type: "added" | "removed" | "custom" | "saved" | "loaded" | null;
     key?: number;
   }>({ message: null, type: null });
+
+  // FIX: these were React state before, which made handleFishUpdate a new
+  // function on every render. That new function identity re-triggered
+  // FishTank's effect, which called setState here, which re-rendered App,
+  // which created another new function... an infinite render loop that kept
+  // the CPU busy 100% of the time. Refs + useCallback make the callback
+  // identity stable and break the cycle.
+  const previousFishListRef = useRef<string[]>([]);
+  const suppressNotificationsRef = useRef(false);
 
   // Handle window resize
   React.useEffect(() => {
@@ -76,7 +81,7 @@ const App: React.FC = () => {
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000); // Show loading screen for at least 2 seconds
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -87,20 +92,17 @@ const App: React.FC = () => {
 
   const handleAddFish = () => {
     setFishCount((prev) => Math.min(prev + 1, 30));
-    // REMOVED: setRefreshKey - no longer forcing regeneration!
   };
 
   const handleRemoveFish = () => {
     setFishCount((prev) => Math.max(prev - 1, 0));
-    // REMOVED: setRefreshKey - no longer forcing regeneration!
   };
 
   const handleEasterEgg = () => {
     const newCustomMode = !useCustomFish;
     setUseCustomFish(newCustomMode);
-    setRefreshKey((prev) => prev + 1); // Still refresh for mode change
+    setRefreshKey((prev) => prev + 1);
 
-    // Show notification
     setNotification({
       message: newCustomMode
         ? "Custom Fish Mode Activated!"
@@ -112,32 +114,30 @@ const App: React.FC = () => {
 
   const handleEnvironmentChange = (env: EnvironmentType) => {
     setEnvironment(env);
-    setRefreshKey((prev) => prev + 1); // Refresh when environment changes
+    setRefreshKey((prev) => prev + 1);
   };
 
-  const handleFishUpdate = (fishSprites: string[]) => {
-    const previousCount = previousFishList.length;
+  // FIX: stable identity via useCallback, early-exit when nothing changed.
+  const handleFishUpdate = useCallback((fishSprites: string[]) => {
+    const prev = previousFishListRef.current;
+    const unchanged =
+      prev.length === fishSprites.length &&
+      prev.every((s, i) => s === fishSprites[i]);
+    if (unchanged) return;
+
+    const previousCount = prev.length;
     const currentCount = fishSprites.length;
 
-    // Always update the lists
-    setPreviousFishList(fishSprites);
+    previousFishListRef.current = fishSprites;
     setCurrentFishList(fishSprites);
 
-    // Skip all notifications if suppressed (during mode transitions)
-    if (suppressNotifications) {
-      return;
-    }
-
-    // Skip notifications if both lists are empty
-    if (previousCount === 0 && currentCount === 0) {
-      return;
-    }
+    if (suppressNotificationsRef.current) return;
+    if (previousCount === 0 && currentCount === 0) return;
 
     // Fish was added
     if (currentCount > previousCount && previousCount > 0) {
       const addedFish = fishSprites.filter(
-        (fish, index) =>
-          !previousFishList.includes(fish) || index >= previousCount
+        (fish, index) => !prev.includes(fish) || index >= previousCount,
       );
       const fishPath =
         addedFish.length > 0
@@ -157,13 +157,9 @@ const App: React.FC = () => {
     }
     // Fish was removed
     else if (currentCount < previousCount && previousCount > 0) {
-      const removedFish = previousFishList.filter(
-        (fish) => !fishSprites.includes(fish)
-      );
+      const removedFish = prev.filter((fish) => !fishSprites.includes(fish));
       const fishPath =
-        removedFish.length > 0
-          ? removedFish[0]
-          : previousFishList[previousFishList.length - 1];
+        removedFish.length > 0 ? removedFish[0] : prev[prev.length - 1];
       const fishName =
         fishPath.split("/").pop()?.replace(".png", "").replace(/_/g, " ") ||
         "Unknown Fish";
@@ -176,7 +172,7 @@ const App: React.FC = () => {
         key: Date.now(),
       });
     }
-  };
+  }, []);
 
   // Save current aquarium state to localStorage
   const saveMyAquarium = () => {
@@ -189,7 +185,6 @@ const App: React.FC = () => {
         useCustomFish,
       };
       localStorage.setItem(AQUARIUM_STORAGE_KEY, JSON.stringify(state));
-      console.log("Saved aquarium:", state);
 
       setNotification({
         message: "Aquarium Saved!",
@@ -209,23 +204,19 @@ const App: React.FC = () => {
   // Load saved aquarium state from localStorage
   const loadMyAquarium = () => {
     try {
-      // Suppress fish add/remove notifications during mode transition
-      setSuppressNotifications(true);
+      suppressNotificationsRef.current = true;
 
       const savedData = localStorage.getItem(AQUARIUM_STORAGE_KEY);
-      console.log("Loading aquarium, savedData:", savedData);
 
       if (savedData) {
         const state: SavedAquariumState = JSON.parse(savedData);
-        console.log("Loaded aquarium:", state);
 
         setFishCount(state.fishCount);
         setSeaweedCount(state.seaweedCount);
         setEnvironment(state.environment);
         setUseCustomFish(state.useCustomFish);
-        // Set the saved fish list so it can be restored
         setCurrentFishList(state.currentFishList || []);
-        setPreviousFishList(state.currentFishList || []);
+        previousFishListRef.current = state.currentFishList || [];
         setRefreshKey((prev) => prev + 1);
 
         setNotification({
@@ -234,12 +225,10 @@ const App: React.FC = () => {
           key: Date.now(),
         });
       } else {
-        console.log("No saved data found, creating empty tank");
-        // No saved aquarium, start with empty tank
         setFishCount(0);
         setSeaweedCount(0);
         setCurrentFishList([]);
-        setPreviousFishList([]);
+        previousFishListRef.current = [];
         setRefreshKey((prev) => prev + 1);
 
         setNotification({
@@ -250,31 +239,25 @@ const App: React.FC = () => {
       }
       setIsMyAquarium(true);
 
-      // Re-enable notifications after a short delay
       setTimeout(() => {
-        setSuppressNotifications(false);
+        suppressNotificationsRef.current = false;
       }, 500);
     } catch (error) {
       console.error("Failed to load aquarium:", error);
-      setSuppressNotifications(false);
+      suppressNotificationsRef.current = false;
     }
   };
 
-  // Toggle My Aquarium - save current state or load saved state
   const handleMyAquarium = () => {
     if (isMyAquarium) {
-      // Already viewing "My Aquarium", save any changes
       saveMyAquarium();
     } else {
-      // Load saved aquarium or create empty tank
       loadMyAquarium();
     }
   };
 
-  // Exit My Aquarium mode and return to original tank
   const handleExitMyAquarium = () => {
-    // Suppress fish add/remove notifications during mode transition
-    setSuppressNotifications(true);
+    suppressNotificationsRef.current = true;
 
     setIsMyAquarium(false);
     setFishCount(isMobile ? 3 : 6);
@@ -282,7 +265,7 @@ const App: React.FC = () => {
     setEnvironment("all");
     setUseCustomFish(false);
     setCurrentFishList([]);
-    setPreviousFishList([]);
+    previousFishListRef.current = [];
     setRefreshKey((prev) => prev + 1);
 
     setNotification({
@@ -291,9 +274,8 @@ const App: React.FC = () => {
       key: Date.now(),
     });
 
-    // Re-enable notifications after a short delay
     setTimeout(() => {
-      setSuppressNotifications(false);
+      suppressNotificationsRef.current = false;
     }, 500);
   };
 
@@ -304,14 +286,19 @@ const App: React.FC = () => {
       <div className="relative w-full h-full bg-gradient-to-b from-blue-900 to-black">
         <Canvas
           shadows
+          // FIX: cap the device pixel ratio. Retina MacBooks report dpr 2+,
+          // which quadruples the number of pixels shaded every frame. 1.5
+          // still looks crisp and cuts GPU work almost in half.
+          dpr={[1, 1.5]}
           camera={{
-            position: isMobile ? [0, 2, 50] : [0, 2, 8],
+            // FIX: was [0, 2, 50] on mobile, but OrbitControls clamps
+            // maxDistance to 15, so the camera snapped on first touch.
+            position: isMobile ? [0, 2, 12] : [0, 2, 8],
             fov: 45,
           }}
-          gl={{ antialias: true, alpha: true }}
+          gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
         >
           <Suspense fallback={null}>
-            {/* Enhanced lighting for realistic glass reflections */}
             <ambientLight intensity={0.5} />
             <pointLight position={[10, 10, 10]} intensity={2} castShadow />
             <pointLight
@@ -325,8 +312,9 @@ const App: React.FC = () => {
               penumbra={1}
               intensity={2.5}
               castShadow
-              shadow-mapSize-width={2048}
-              shadow-mapSize-height={2048}
+              // FIX: 2048x2048 shadow map was overkill for this scene.
+              shadow-mapSize-width={1024}
+              shadow-mapSize-height={1024}
             />
 
             <FishTank
@@ -343,10 +331,11 @@ const App: React.FC = () => {
               key={refreshKey}
             />
 
+            {/* FIX: 5000 stars -> 2000. Visually nearly identical. */}
             <Stars
               radius={100}
               depth={50}
-              count={5000}
+              count={2000}
               factor={4}
               saturation={0}
               fade
@@ -358,6 +347,9 @@ const App: React.FC = () => {
               scale={20}
               blur={2.5}
               far={4.5}
+              // FIX: ContactShadows re-renders its depth pass every frame by
+              // default; nothing outside the tank moves, so bake it once.
+              frames={1}
             />
             <Environment preset="dawn" background={false} />
 

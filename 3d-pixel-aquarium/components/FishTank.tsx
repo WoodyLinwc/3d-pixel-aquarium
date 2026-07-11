@@ -10,6 +10,11 @@ import {
   type Environment,
 } from "../constants";
 
+// Set to true only if you want the fancy (expensive) refractive glass.
+// MeshTransmissionMaterial re-renders the whole scene into an offscreen
+// buffer every frame — it was the single biggest GPU cost in the app.
+const HIGH_QUALITY_GLASS = false;
+
 interface FishTankProps {
   count: number;
   seaweedCount: number;
@@ -40,17 +45,14 @@ export const FishTank: React.FC<FishTankProps> = ({
     }>
   >([]);
 
-  // Track previous environment and custom fish mode
   const prevEnvironmentRef = useRef(environment);
   const prevCustomFishRef = useRef(useCustomFish);
-  const hasRestoredRef = useRef(false); // Track if we've restored from savedFishList
+  const hasRestoredRef = useRef(false);
 
-  // Generate random fish configurations
   const fishes = useMemo(() => {
     const safeMargin = 1.2;
     const fishSprites = getFishForEnvironment(environment, useCustomFish);
 
-    // Simple hash function to get consistent random values for each fish sprite
     const hashString = (str: string): number => {
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
@@ -61,13 +63,11 @@ export const FishTank: React.FC<FishTankProps> = ({
       return Math.abs(hash);
     };
 
-    // Seeded random function
     const seededRandom = (seed: number): number => {
       const x = Math.sin(seed) * 10000;
       return x - Math.floor(x);
     };
 
-    // Check if environment or custom mode changed - if so, reset the pool
     if (
       prevEnvironmentRef.current !== environment ||
       prevCustomFishRef.current !== useCustomFish
@@ -78,7 +78,6 @@ export const FishTank: React.FC<FishTankProps> = ({
       prevCustomFishRef.current = useCustomFish;
     }
 
-    // If we have saved fish list and haven't restored yet, restore them
     if (savedFishList && savedFishList.length > 0 && !hasRestoredRef.current) {
       const restoredFish = savedFishList.map((sprite, i) => {
         const spriteHash = hashString(sprite);
@@ -93,7 +92,7 @@ export const FishTank: React.FC<FishTankProps> = ({
           position: new THREE.Vector3(
             (Math.random() - 0.5) * (TANK_SIZE.width - safeMargin * 2),
             (Math.random() - 0.5) * (TANK_SIZE.height - safeMargin * 2),
-            (Math.random() - 0.5) * (TANK_SIZE.depth - safeMargin * 2)
+            (Math.random() - 0.5) * (TANK_SIZE.depth - safeMargin * 2),
           ),
           speed: 0.008 + speedSeed * 0.03,
           scale: 0.3 + scaleSeed * 0.4,
@@ -107,11 +106,9 @@ export const FishTank: React.FC<FishTankProps> = ({
       return restoredFish;
     }
 
-    // Check if we need to add more fish to the pool
     const currentPoolSize = fishPoolRef.current.length;
 
     if (currentPoolSize < count) {
-      // Add new fish to the pool
       const fishToAdd = count - currentPoolSize;
 
       for (let i = 0; i < fishToAdd; i++) {
@@ -129,7 +126,7 @@ export const FishTank: React.FC<FishTankProps> = ({
           position: new THREE.Vector3(
             (Math.random() - 0.5) * (TANK_SIZE.width - safeMargin * 2),
             (Math.random() - 0.5) * (TANK_SIZE.height - safeMargin * 2),
-            (Math.random() - 0.5) * (TANK_SIZE.depth - safeMargin * 2)
+            (Math.random() - 0.5) * (TANK_SIZE.depth - safeMargin * 2),
           ),
           speed: 0.008 + speedSeed * 0.03,
           scale: 0.3 + scaleSeed * 0.4,
@@ -138,54 +135,78 @@ export const FishTank: React.FC<FishTankProps> = ({
         });
       }
     } else if (currentPoolSize > count) {
-      // Remove fish from the pool (from the end)
       fishPoolRef.current = fishPoolRef.current.slice(0, count);
     }
 
     return fishPoolRef.current;
   }, [count, environment, useCustomFish, savedFishList]);
 
-  // Report the actual fish sprites being displayed
+  // FIX: only report upward when the displayed list actually changed.
+  // Before, this effect fired on every parent re-render (because
+  // onFishUpdate was a new function each time) and always created a brand
+  // new array, which triggered setState in App, which re-rendered App,
+  // which re-triggered this effect... an infinite render loop that pinned
+  // one CPU core forever. This guard breaks the cycle.
+  const lastReportedRef = useRef<string[]>([]);
   React.useEffect(() => {
-    if (onFishUpdate) {
-      const displayedFish = fishes.slice(0, count).map((f) => f.sprite);
-      onFishUpdate(displayedFish);
-    }
+    if (!onFishUpdate) return;
+    const displayedFish = fishes.slice(0, count).map((f) => f.sprite);
+    const last = lastReportedRef.current;
+    const unchanged =
+      last.length === displayedFish.length &&
+      last.every((s, i) => s === displayedFish[i]);
+    if (unchanged) return;
+    lastReportedRef.current = displayedFish;
+    onFishUpdate(displayedFish);
   }, [fishes, count, onFishUpdate]);
 
   return (
     <group>
-      {/* Tank Glass Box - Enhanced realistic glass */}
+      {/* Tank Glass Box */}
       <mesh castShadow receiveShadow>
         <boxGeometry
           args={[TANK_SIZE.width, TANK_SIZE.height, TANK_SIZE.depth]}
         />
-        <MeshTransmissionMaterial
-          backside
-          backsideThickness={0.15}
-          samples={16}
-          resolution={1024}
-          thickness={0.15}
-          roughness={0.05}
-          chromaticAberration={0.025}
-          anisotropy={0.3}
-          distortion={0.05}
-          distortionScale={0.2}
-          temporalDistortion={0.05}
-          transmission={0.98}
-          ior={1.52}
-          color="#e0f7fa"
-          transparent
-          opacity={1}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
-          metalness={0.05}
-          reflectivity={0.5}
-        />
+        {HIGH_QUALITY_GLASS ? (
+          // Toned-down transmission material: samples 16→4, resolution
+          // 1024→256, backside pass removed (it doubles the cost).
+          <MeshTransmissionMaterial
+            samples={4}
+            resolution={256}
+            thickness={0.15}
+            roughness={0.05}
+            chromaticAberration={0.025}
+            anisotropy={0.3}
+            distortion={0.05}
+            distortionScale={0.2}
+            temporalDistortion={0.05}
+            transmission={0.98}
+            ior={1.52}
+            color="#e0f7fa"
+            transparent
+            opacity={1}
+            clearcoat={1}
+            clearcoatRoughness={0.1}
+            metalness={0.05}
+            reflectivity={0.5}
+          />
+        ) : (
+          // Cheap physically-based glass: no offscreen scene render at all.
+          // Looks very close for a simple box tank, costs a tiny fraction.
+          <meshPhysicalMaterial
+            transparent
+            opacity={0.25}
+            roughness={0.05}
+            metalness={0}
+            transmission={0}
+            clearcoat={1}
+            clearcoatRoughness={0.1}
+            color="#e0f7fa"
+            side={THREE.DoubleSide}
+            depthWrite={false}
+          />
+        )}
       </mesh>
-
-      {/* Tank Frame - More detailed */}
-      {/* Removed wireframe to eliminate diagonal lines */}
 
       {/* Tank Floor (Sand) */}
       <mesh
@@ -197,45 +218,88 @@ export const FishTank: React.FC<FishTankProps> = ({
         <meshStandardMaterial color="#fef08a" roughness={1} />
       </mesh>
 
-      {/* Seaweed decoration */}
       <Seaweed count={seaweedCount} />
 
-      {/* Bubbles / Particles */}
       <Bubbles count={40} />
 
-      {/* Render selected number of fish */}
       {fishes.slice(0, count).map((fish) => (
         <Fish key={fish.id} {...fish} />
       ))}
 
-      {/* Table/Desk below the tank */}
       <Table />
 
-      {/* Text below the table */}
       <TableText />
     </group>
   );
 };
 
-// Seaweed decoration component
+// ─────────────────────────────────────────────────────────────────────────
+// WHITE-FRAME FIX for the seaweed animation.
+//
+// Replace the entire `const Seaweed: React.FC<{ count: number }> = ...`
+// component inside your FishTank.tsx with the version below.
+//
+// Requirements (both already present in your FishTank.tsx imports):
+//   import { useFrame, useLoader } from "@react-three/fiber";
+//   import * as THREE from "three";
+//
+// Why this fixes it:
+// - OLD: `new THREE.TextureLoader().load(url)` returns an EMPTY texture
+//   immediately and fills it in whenever the download finishes. Until then,
+//   the plane renders with meshStandardMaterial's default color — white.
+//   Since the animation cycles through 4 separately-downloaded files, any
+//   frame that hadn't loaded yet flashed as a solid white square.
+// - NEW: `useLoader` suspends the component (via your <Suspense> in App)
+//   until ALL four frames are fully downloaded, so nothing ever renders
+//   half-loaded.
+//
+// Bonus: the frame swap now happens inside useFrame by mutating the
+// material's map directly — no setState, no React re-render every 300ms.
+// ─────────────────────────────────────────────────────────────────────────
+
 const Seaweed: React.FC<{ count: number }> = ({ count }) => {
-  const [currentFrame, setCurrentFrame] = React.useState(0);
-  const textures = useMemo(() => {
-    return [1, 2, 3, 4].map((i) => {
-      const loader = new THREE.TextureLoader();
-      const texture = loader.load(`/decorations/seaweed_${i}.png`);
+  // Loads once, cached globally, suspends until all 4 frames are ready.
+  const textures = useLoader(THREE.TextureLoader, [
+    "/decorations/seaweed_1.png",
+    "/decorations/seaweed_2.png",
+    "/decorations/seaweed_3.png",
+    "/decorations/seaweed_4.png",
+  ]);
+
+  // Configure pixel-art filtering once per texture (not on every render).
+  useMemo(() => {
+    textures.forEach((texture) => {
+      texture.colorSpace = THREE.SRGBColorSpace; // ← the fix
       texture.magFilter = THREE.NearestFilter;
       texture.minFilter = THREE.NearestFilter;
-      return texture;
+      texture.generateMipmaps = false;
+      texture.needsUpdate = true;
     });
-  }, []);
+  }, [textures]);
 
-  // Generate random seaweed positions and sizes
+  // Animate by swapping the material map directly — zero React re-renders.
+  const materialRefs = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
+  const frameRef = useRef(0);
+  const elapsedRef = useRef(0);
+
+  useFrame((_, delta) => {
+    elapsedRef.current += delta;
+    if (elapsedRef.current >= 0.3) {
+      elapsedRef.current = 0;
+      frameRef.current = (frameRef.current + 1) % 4;
+      const tex = textures[frameRef.current];
+      materialRefs.current.forEach((mat) => {
+        if (mat) mat.map = tex;
+      });
+    }
+  });
+
+  // Random seaweed positions and sizes (unchanged from your original)
   const seaweeds = useMemo(() => {
     return Array.from({ length: 6 }).map((_, i) => {
-      const scale = 1.5 + Math.random() * 2; // Random size between 1.5 and 3.5
+      const scale = 1.5 + Math.random() * 2;
       const baseY = -TANK_SIZE.height / 2;
-      const yOffset = 0.5 + (scale - 1.5) * 0.8; // Much larger shift for taller seaweed
+      const yOffset = 0.5 + (scale - 1.5) * 0.8;
 
       return {
         id: i,
@@ -249,17 +313,9 @@ const Seaweed: React.FC<{ count: number }> = ({ count }) => {
     });
   }, []);
 
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentFrame((prev) => (prev + 1) % 4);
-    }, 300); // Change frame every 300ms for slower animation
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <group>
-      {seaweeds.slice(0, count).map((seaweed) => (
+      {seaweeds.slice(0, count).map((seaweed, i) => (
         <mesh
           key={seaweed.id}
           position={seaweed.position}
@@ -267,7 +323,8 @@ const Seaweed: React.FC<{ count: number }> = ({ count }) => {
         >
           <planeGeometry args={[1, 1]} />
           <meshStandardMaterial
-            map={textures[currentFrame]}
+            ref={(mat) => (materialRefs.current[i] = mat)}
+            map={textures[0]}
             transparent
             side={THREE.DoubleSide}
             alphaTest={0.5}
@@ -278,126 +335,101 @@ const Seaweed: React.FC<{ count: number }> = ({ count }) => {
   );
 };
 
-// Table/Desk Component
+// Table/Desk Component (unchanged)
 const Table: React.FC = () => {
-  const tableY = -TANK_SIZE.height / 2 - 0.15; // Position lower to account for thickness
-  const tableHeight = 0.2; // Increased thickness
+  const tableY = -TANK_SIZE.height / 2 - 0.15;
+  const tableHeight = 0.2;
   const tableWidth = TANK_SIZE.width + 1;
   const tableDepth = TANK_SIZE.depth + 0.5;
   const legHeight = 1.5;
   const legThickness = 0.15;
 
+  const legPositions: [number, number, number][] = [
+    [
+      -tableWidth / 2 + 0.3,
+      tableY - legHeight / 2 - tableHeight / 2,
+      tableDepth / 2 - 0.3,
+    ],
+    [
+      tableWidth / 2 - 0.3,
+      tableY - legHeight / 2 - tableHeight / 2,
+      tableDepth / 2 - 0.3,
+    ],
+    [
+      -tableWidth / 2 + 0.3,
+      tableY - legHeight / 2 - tableHeight / 2,
+      -tableDepth / 2 + 0.3,
+    ],
+    [
+      tableWidth / 2 - 0.3,
+      tableY - legHeight / 2 - tableHeight / 2,
+      -tableDepth / 2 + 0.3,
+    ],
+  ];
+
   return (
     <group>
-      {/* Table Top */}
       <mesh position={[0, tableY, 0]} receiveShadow castShadow>
         <boxGeometry args={[tableWidth, tableHeight, tableDepth]} />
         <meshStandardMaterial color="#8b4513" roughness={0.7} metalness={0.1} />
       </mesh>
 
-      {/* Table Legs */}
-      {/* Front Left Leg */}
-      <mesh
-        position={[
-          -tableWidth / 2 + 0.3,
-          tableY - legHeight / 2 - tableHeight / 2,
-          tableDepth / 2 - 0.3,
-        ]}
-        castShadow
-      >
-        <boxGeometry args={[legThickness, legHeight, legThickness]} />
-        <meshStandardMaterial color="#654321" roughness={0.8} />
-      </mesh>
-
-      {/* Front Right Leg */}
-      <mesh
-        position={[
-          tableWidth / 2 - 0.3,
-          tableY - legHeight / 2 - tableHeight / 2,
-          tableDepth / 2 - 0.3,
-        ]}
-        castShadow
-      >
-        <boxGeometry args={[legThickness, legHeight, legThickness]} />
-        <meshStandardMaterial color="#654321" roughness={0.8} />
-      </mesh>
-
-      {/* Back Left Leg */}
-      <mesh
-        position={[
-          -tableWidth / 2 + 0.3,
-          tableY - legHeight / 2 - tableHeight / 2,
-          -tableDepth / 2 + 0.3,
-        ]}
-        castShadow
-      >
-        <boxGeometry args={[legThickness, legHeight, legThickness]} />
-        <meshStandardMaterial color="#654321" roughness={0.8} />
-      </mesh>
-
-      {/* Back Right Leg */}
-      <mesh
-        position={[
-          tableWidth / 2 - 0.3,
-          tableY - legHeight / 2 - tableHeight / 2,
-          -tableDepth / 2 + 0.3,
-        ]}
-        castShadow
-      >
-        <boxGeometry args={[legThickness, legHeight, legThickness]} />
-        <meshStandardMaterial color="#654321" roughness={0.8} />
-      </mesh>
-    </group>
-  );
-};
-
-const Bubbles: React.FC<{ count: number }> = ({ count }) => {
-  const bubblePositions = useMemo(() => {
-    return Array.from({ length: count }).map(
-      () =>
-        [
-          (Math.random() - 0.5) * TANK_SIZE.width,
-          (Math.random() - 0.5) * TANK_SIZE.height,
-          (Math.random() - 0.5) * TANK_SIZE.depth,
-        ] as [number, number, number]
-    );
-  }, [count]);
-
-  return (
-    <group>
-      {bubblePositions.map((pos, i) => (
-        <Bubble key={i} startPos={pos} />
+      {legPositions.map((pos, i) => (
+        <mesh key={i} position={pos} castShadow>
+          <boxGeometry args={[legThickness, legHeight, legThickness]} />
+          <meshStandardMaterial color="#654321" roughness={0.8} />
+        </mesh>
       ))}
     </group>
   );
 };
 
-const Bubble: React.FC<{ startPos: [number, number, number] }> = ({
-  startPos,
-}) => {
-  const ref = useRef<THREE.Mesh>(null!);
-  const speed = useMemo(() => 0.5 + Math.random() * 1.5, []);
+// FIX: bubbles are now a single InstancedMesh — 1 draw call and 1 useFrame
+// instead of 40 separate meshes each with their own useFrame subscription.
+// Also uses meshBasicMaterial (bubbles don't need lighting) and is
+// frame-rate independent.
+const Bubbles: React.FC<{ count: number }> = ({ count }) => {
+  const meshRef = useRef<THREE.InstancedMesh>(null!);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
 
-  React.useLayoutEffect(() => {
-    if (ref.current) {
-      ref.current.position.set(...startPos);
-    }
-  }, [startPos]);
+  const bubbles = useMemo(
+    () =>
+      Array.from({ length: count }).map(() => ({
+        x: (Math.random() - 0.5) * TANK_SIZE.width,
+        y: (Math.random() - 0.5) * TANK_SIZE.height,
+        z: (Math.random() - 0.5) * TANK_SIZE.depth,
+        speed: 0.5 + Math.random() * 1.5,
+      })),
+    [count],
+  );
 
-  useFrame(() => {
-    if (ref.current) {
-      ref.current.position.y += speed * 0.01;
-      ref.current.position.x += Math.sin(ref.current.position.y * 5) * 0.005;
-      if (ref.current.position.y > TANK_SIZE.height / 2) {
-        ref.current.position.y = -TANK_SIZE.height / 2;
+  useFrame((_, delta) => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+    const step = Math.min(delta, 0.1);
+
+    for (let i = 0; i < bubbles.length; i++) {
+      const b = bubbles[i];
+      b.y += b.speed * 0.6 * step;
+      if (b.y > TANK_SIZE.height / 2) {
+        b.y = -TANK_SIZE.height / 2;
       }
+      dummy.position.set(b.x + Math.sin(b.y * 5) * 0.05, b.y, b.z);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
     }
+    mesh.instanceMatrix.needsUpdate = true;
   });
 
   return (
-    <mesh ref={ref}>
-      <sphereGeometry args={[0.03, 8, 8]} />
-      <meshStandardMaterial color="white" transparent opacity={0.4} />
-    </mesh>
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
+      <sphereGeometry args={[0.03, 6, 6]} />
+      <meshBasicMaterial
+        color="white"
+        transparent
+        opacity={0.4}
+        depthWrite={false}
+      />
+    </instancedMesh>
   );
 };
